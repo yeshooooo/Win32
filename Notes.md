@@ -67,6 +67,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 ### 2.1 应用程序实例句柄
 
+==句柄有很多种，如窗口句柄，菜单句柄，实例句柄，光标句柄，位图句柄==
+
 ![](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202308172311062.png)
 
 ![image-20230817160146245](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202308171601527.png)
@@ -113,3 +115,57 @@ DllMainCRTStartup(dll.dllmain.cpp)->dllmain_dispatch(dll.dllmain.cpp)->DllMain
 ![image-20230817172036419](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202308171720469.png)
 
 ![image-20230817172055431](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202308171720504.png)
+
+# 3.Windows窗口
+
+### 1. 步骤
+
+![image-20230818151759898](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202308181518032.png)
+
+### 2. 窗口类
+
+![image-20230818151915520](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202308181519769.png)
+
+##### 2.1 注册窗口类
+
+![image-20230818152602187](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202308181526404.png)
+
+##### 2.2 窗口类样式
+
+![image-20230818153235996](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202308181532279.png)
+
+![image-20230818153304354](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202308181533495.png)
+
+##### 2.3 创建窗口
+
+![image-20230818153511242](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202308181535430.png)
+
+##### ![image-20230818154251221](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202308181542414.png)
+
+##### 2.4 显示窗口
+
+![image-20230818154758147](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202308181547329.png)
+
+##### 2.5 更新窗口
+
+![image-20230818154952317](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202308181549467.png)
+
+##### 2.6 窗口过程函数回调
+
+![image-20230818155239168](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202308181552313.png)
+
+![image-20230818161736414](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202308181617690.png)
+
+![image-20230818161937796](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202308181619059.png)
+
+##### 2.7 消息循环
+
+固定写法
+
+![image-20230818162156925](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202308181621109.png)
+
+![image-20230818162308411](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202308181623652.png)
+
+![image-20230818162508357](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202308181625568.png)
+
+![image-20230818162536521](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202308181625653.png)
