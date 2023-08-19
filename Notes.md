@@ -1,5 +1,7 @@
 # 1.MSDN 抄的一些数据类型
 
+### 
+
 ### 1.1 整数类型
 
 ![image-20230817153159152](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202308171531270.png)
@@ -8,7 +10,15 @@
 
 ![image-20230817153000116](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202308171530179.png)
 
-### 
+### 1.3 windows核心编程中对字符串用法的总结
+
+1. 为了让ansi和unicode都能通过编译，可以定义类型为TCHAR ,TCHAR的具体类型取决于是否声明了宏UNICODE ，字符串常量可以用TEXT()宏来包裹，可以屏蔽L和ansi字符串常量的区别，具体类型由UNICODE宏控制
+
+   一个注意点是msdn上说这俩宏用的少
+
+2.![image-20230819112243144](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202308191122260.png)
+
+
 
 
 
