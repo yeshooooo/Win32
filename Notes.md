@@ -179,3 +179,103 @@ DllMainCRTStartup(dll.dllmain.cpp)->dllmain_dispatch(dll.dllmain.cpp)->DllMain
 ![image-20230818162508357](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202308181625568.png)
 
 ![image-20230818162536521](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202308181625653.png)
+
+# 4. WindowsApi常见数据类型
+
+![](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202308221046060.png)
+
+![image-20230822105036246](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202308221050425.png)
+
+![image-20230822105241033](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202308221052293.png)
+
+![image-20230822105411306](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202308221054551.png)
+
+![image-20230822105504353](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202308221055557.png)
+
+# 5.句柄的概念
+
+![image-20230822105647244](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202308221056426.png)
+
+![image-20230822110324170](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202308221103424.png)
+
+![image-20230822110846204](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202308221108356.png)
+
+# 6. 符号定义
+
+![image-20230822110928211](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202308221109298.png)
+
+![image-20230822110950022](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202308221109241.png)
+
+# 7. 单字节字符集SBCS、多字节字符集MBCS、UNICODE字符集
+
+![image-20230822111638838](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202308221116067.png)
+
+![image-20230822111759931](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202308221118185.png)
+
+![image-20230822112012204](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202308221120553.png)
+
+![image-20230822112240019](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202308221122145.png)
+
+![image-20230822112503723](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202308221125072.png)
+
+![image-20230822142423837](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202308221424186.png)
+
+![image-20230822142755045](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202308221427209.png)
+
+### 7.1特别说明，ANSI为国际标准的多字节编码，可能会使用gb2312等具体是什么还没确定
+
+![image-20230822153318171](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202308221533416.png)
+
+![image-20230822155603708](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202308221556937.png)
+
+### 7.2 解决中文字符串乱码
+
+#include <locale.h>
+
+​	_wsetlocale(LC_ALL, L"chs"); // 设置输出得本地化为中文
+
+```cpp
+#include <stdio.h>
+#include <string.h>
+
+// 必须包含这个头文件，否则控制台不支持宽字节字符串
+#include <locale.h>
+int main() {
+	const char* str1 = "A中";
+	printf("%s %d\n", str1, strlen(str1));
+
+	_wsetlocale(LC_ALL, L"chs"); // 设置输出得本地化为中文
+	const wchar_t* str2 = L"A中"; // 必须加L表示字符串是unicode
+	wprintf(L"%s %d\n", str2, wcslen(str2));
+}
+```
+
+# 8.Win32 API的A/W函数
+
+![image-20230822161208940](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202308221612110.png)
+
+# 9. 消息驱动机制简介简介
+
+![image-20230822171715521](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202308221717638.png)
+
+![image-20230822171935308](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202308221719566.png)
+
+![image-20230822172245041](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202308221722238.png)
+
+### 8.1 消息结构体
+
+![image-20230822172344932](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202308221723128.png)
+
+### 8.2 windows消息循环
+
+![image-20230822172439925](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202308221724128.png)
+
+![image-20230822172608143](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202308221726413.png)
+
+![image-20230822172807852](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202308221728067.png)
+
+![image-20230822172910496](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202308221729747.png)
+
+![image-20230822173041832](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202308221730119.png)
+
+![image-20230822173211355](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202308221732598.png)

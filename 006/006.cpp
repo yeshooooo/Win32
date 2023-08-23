@@ -1,4 +1,4 @@
-#include <windows.h>
+ #include <windows.h>
 
 // 自定义窗口过程，函数签名去DefWindowProc抄就行
 LRESULT CALLBACK MyWindowProc( HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam);
