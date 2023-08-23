@@ -279,3 +279,124 @@ int main() {
 ![image-20230822173041832](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202308221730119.png)
 
 ![image-20230822173211355](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202308221732598.png)
+
+# 10.达内消息相关
+
+### 10.1 消息基础
+
+#### 10.1.1 消息循环
+
+![image-20230823102713303](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202308231027561.png)
+
+linux系统消息由几个部分构成是由程序员设定，而windos下是固定的
+
+**派发就是DispatchMessage(&Msg)来派发，派发给窗口的窗口处理函数**==派发其实就是调用我们自己定义的窗口处理函数(回调)==
+
+==每个窗口都应该有窗口处理函数==
+
+==DispatchMessage怎么找到窗口的呢？==
+
+![image-20230823105425670](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202308231054803.png)
+
+
+
+#### 
+
+#### 10.1.2 窗口处理函数的限制
+
+窗口处理函数是有原型限制的
+
+![image-20230823110043849](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202308231100234.png)
+
+#### 10.1.3 GetMessage()和translatemessage浅谈
+
+GetMessage是去系统某个地方抓本进程的消息
+
+==同一个进程可以包含很多窗口，如果指定第二个参数的话，他只会抓指定窗口的消息，本进程内其他窗口的消息他是不管的,所以一般写NULL，意味着进程内所有的消息都会抓取==
+
+![image-20230823111243995](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202308231112206.png)
+
+getmessage的返回值
+
+![image-20230823114028071](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202308231140132.png)
+
+
+
+==翻译消息==
+
+翻译消息不是什么消息都翻译，他只翻译键盘消息，而且只翻译键盘的可见字符，上下左右f1这种不翻译，只翻译a-z，因为a-z有大小写之分
+
+
+
+![image-20230823114748238](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202308231147458.png)
+
+### 10.2 常见消息
+
+#### 10.2.1 WM_DESTROY
+
+不是点击关闭按钮的时候产生的消息
+
+![image-20230823160333556](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202308231603803.png)
+
+#### 10.2.2 WM_SYSCOMMAND
+
+==点击关闭按钮，真正产生的消息是WM_SYSCOMMAND==
+
+==wParam就能看到点了哪产生的消息了==
+
+// lParam低位字节传递的是水平坐标，高位字节传递的是垂直坐标
+
+微软已经提供了取高低位的宏
+
+
+
+![image-20230823163852808](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202308231638103.png)
+
+```cpp
+LRESULT CALLBACK MyWindowProc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam)
+{
+	switch (Msg)
+	{
+	case WM_DESTROY: {
+		PostQuitMessage(WM_QUIT); 
+		//exit(0);
+		return 0;
+	}
+				   // 点击最大化，最小化，关闭等都会直接产生这个消息
+	case WM_SYSCOMMAND:
+		if (wParam == SC_CLOSE)
+		{
+			int nRet =  MessageBox(hWnd, TEXT("是否退出？"), TEXT("Info"), MB_YESNO);
+			if (nRet ==IDYES)
+			{
+				// 什么都不写就会穿透到default下最终退出
+			}
+			else
+			{
+				return 0; // return 啥都行，目的是不让DefWindowProc执行
+			}
+		}
+		
+	default:
+		// 这俩会再处理一遍WM_SYSCOMMAND，产生WM_DESTROY消息，再回上面的
+		return DefWindowProc(hWnd, Msg, wParam, lParam);
+	}
+	return 0;
+}
+```
+
+
+
+#### 10.2.3 WM_CREATE
+
+传过来的lParam要强转为CREATESTRUCT类型
+
+![image-20230823170156116](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202308231701408.png)
+
+
+
+# 11. 线程相关
+
+# 12. 线程和窗口的关系
+
+![image-20230823100657414](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202308231006591.png)

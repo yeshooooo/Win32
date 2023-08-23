@@ -3,6 +3,8 @@
 // 自定义窗口过程，函数签名去DefWindowProc抄就行
 LRESULT CALLBACK MyWindowProc( HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam);
 
+void OnCreate(HWND hWnd, LPARAM lParam);
+
 
 
 int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPSTR lpCmdLine, _In_ int nShowCmd)
@@ -26,6 +28,7 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 	RegisterClass(&wnd);
 
 	// 2. 创建窗口(返回之前会发送WM_CREATE消息)
+	// 
 	HWND hwnd = CreateWindow(
 		L"MyWindow",
 		L"left top title",
@@ -62,15 +65,40 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 
 LRESULT CALLBACK MyWindowProc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam)
 {
+	// lParam低位字节传递的是水平坐标，高位字节传递的是垂直坐标
 	switch (Msg)
 	{
-	case WM_DESTROY: {
-		PostQuitMessage(WM_QUIT);
+	case WM_CREATE:
+		OnCreate(hWnd, lParam);
+		break;
+	case WM_DESTROY: 
+		PostQuitMessage(WM_QUIT); 
 		//exit(0);
 		return 0;
-	}
+	
+	// 点击最大化，最小化，关闭等都会直接产生这个消息
+	case WM_SYSCOMMAND:
+		if (wParam == SC_CLOSE)
+		{
+			int nRet =  MessageBox(hWnd, TEXT("是否退出？"), TEXT("Info"), MB_YESNO);
+			if (nRet ==IDYES)
+			{
+				// 什么都不写就会穿透到default下最终退出
+			}
+			else
+			{
+				return 0; // return 啥都行，目的是不让DefWindowProc执行
+			}
+		}
+		
 	default:
+		// 这俩会再处理一遍WM_SYSCOMMAND，产生WM_DESTROY消息，再回上面的
 		return DefWindowProc(hWnd, Msg, wParam, lParam);
 	}
 	return 0;
+}
+
+void OnCreate(HWND hWnd, LPARAM lParam)
+{
+	MessageBox(NULL, TEXT("WM_CREATE"), TEXT("Info"), MB_OK);
 }
