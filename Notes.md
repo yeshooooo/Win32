@@ -393,6 +393,15 @@ LRESULT CALLBACK MyWindowProc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam)
 
 ![image-20230823170156116](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202308231701408.png)
 
+```cpp
+void OnCreate(HWND hWnd, LPARAM lParam)
+{
+	MessageBox(NULL, TEXT("WM_CREATE"), TEXT("Info"), MB_OK);
+
+	CreateWindow(L"Edit", L"hello", WS_CHILD|WS_VISIBLE|WS_BORDER, 0, 0, 200, 200, hWnd, NULL, 0, NULL);
+}
+```
+
 
 
 # 11. 线程相关
