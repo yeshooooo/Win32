@@ -1,3 +1,112 @@
+# 0. 一些技巧性的东西
+
+#### 0.1 同时产生一个dos窗口调试
+
+每次用MESSAGE太麻烦
+
+首先定义一个全局句柄
+
+```cpp
+HANDLE g_hOutput = 0; // 接受标准输出句柄
+```
+
+![image-20230824101024825](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202308241010987.png)
+
+然后再winmain里创建dos
+
+```cpp
+	AllocConsole();// 增加dos窗口
+	g_hOutput = GetStdHandle(STD_OUTPUT_HANDLE); // 拿到标准输出句柄
+
+```
+
+![image-20230824101050691](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202308241010961.png)
+
+然后具体应用到需要打印调试到控制台的地方
+
+```cpp
+	char szText[256] = { 0 };
+	sprintf_s(szText, "WM_SIZE: 宽：%d,高：%d\n", nWidth, nHeight);
+	WriteConsole(g_hOutput, szText, strlen(szText), NULL, NULL);
+```
+
+
+
+![image-20230824100913290](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202308241009501.png)
+
+上面这样可能会中文乱码
+
+
+
+方式二：
+
+![image-20230824102455093](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202308241024196.png)
+
+其他帖子关于使用
+
+```shell
+1、#include <conio.h>
+ 
+2、在需要开启控制台窗口的地方调用
+AllocConsole();//注意检查返回值
+ 
+3、在需要输出调试的时候调用_cprintf等函数
+如_cprintf("i=%d\n", i);
+ 
+4、关闭控制台的时候调用
+FreeConsole();
+ 
+注意：上述方法在输出中文时会出现乱码，如果需要输出中文，请使用下面的方法：
+AllocConsole();
+freopen( "CONOUT$","w",stdout);
+printf("i的值为%d\n", i);
+FreeConsole();
+
+方法二：
+#include <io.h> 
+#include <fcntl.h>
+ 
+void InitConsoleWindow() 
+{ 
+    AllocConsole(); 
+    HANDLE handle = GetStdHandle(STD_OUTPUT_HANDLE); 
+    int hCrt = _open_osfhandle((long)handle,_O_TEXT); 
+    FILE * hf = _fdopen( hCrt, "w" ); 
+    *stdout = *hf; 
+}
+BOOL CHelloMFCDlg::OnInitDialog()
+{ 
+    CDialog::OnInitDialog();
+ 
+    InitConsoleWindow();  // add
+    printf("str = %s\n ", "Debug output goes to terminal\n");
+    ...... 
+}
+```
+
+==个人使用无中文乱码版本方法==
+
+```cpp
+void OnSize(HWND hWnd, LPARAM lParam) {
+	// 拿到变化后的宽跟高
+	short nWidth = LOWORD(lParam);
+	short nHeight = HIWORD(lParam);
+
+	char szText[256] = { 0 };
+	sprintf_s(szText, "WM_SIZE: 宽：%d,高：%d\n", nWidth, nHeight);
+	AllocConsole();
+	FILE* stream;
+	freopen_s(&stream,"CONOUT$", "w", stdout);
+
+	printf("i的值为%s\n", szText);
+	FreeConsole();
+	//WriteConsole(g_hOutput, szText, strlen(szText), NULL, NULL);
+	
+}
+```
+
+![image-20230824162139159](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202308241621504.png)
+
 # 1.MSDN 抄的一些数据类型
 
 ### 
@@ -402,10 +511,375 @@ void OnCreate(HWND hWnd, LPARAM lParam)
 }
 ```
 
+强转
+
+![image-20230824091421195](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202308240914275.png)
+
+#### 10.2.4 WM_SIZE
+
+窗口从无到有这种广义上的大小变化，也会产生WM_SIZE消息
+
+![image-20230824094359388](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202308240943605.png)
+
+#### 10.2.5 WM_QUIT
+
+WM_QUIT不用处理，但是他到哪都特殊
 
 
-# 11. 线程相关
 
-# 12. 线程和窗口的关系
+![image-20230824104901593](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202308241049819.png)
+
+### 10.3 消息循环原理
+
+#### 10.3.1 消息循环的阻塞
+
+![image-20230824154632260](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202308241546709.png)
+
+GetMessage经常阻塞，效率很低
+
+更科学的消息循环写法
+
+```cpp
+	while (1)
+	{
+		if (PeekMessage(&msg, NULL, 0, 0, PM_NOREMOVE))
+		{
+			// 有消息
+			if (GetMessage(&msg, NULL, 0, 0))
+			{
+				TranslateMessage(&msg);
+				DispatchMessage(&msg);
+			}
+			// GetMessage(&msg, NULL, 0, 0)的天敌WM_QUIT
+			else
+			{
+				return 0;
+			}
+		}
+		else
+		{
+			// 没消息
+			// 体面的说法叫空闲处理
+
+		}
+	}
+```
+
+
+
+#### 10.3.2 发送消息（消息是怎么造出来的）
+
+![image-20230824162523231](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202308241625522.png)
+
+消息的后两个参数这俩参数内部会补充
+
+==试验证明，PostQuitMessage是PostMessage发送的==
+
+```cpp
+	case WM_DESTROY: 
+		//PostQuitMessage(0); 
+		// 
+		//exit(0);
+		// 试验PostQuitMessage底层调用的是SendMessage还是PostMessage
+		//SendMessage(hWnd, WM_QUIT, 0, 0);
+		PostMessage(hWnd, WM_QUIT, 0, 0);
+		return 0;
+```
+
+==SendMessage造的消息没有放到消息队列里==
+
+#### 10.3.3 消息分类
+
+系统消息：1024个==系统定制好的消息，程序员只负责一头，要么发送，要么处理==
+
+
+
+
+
+![image-20230824172003479](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202308241720763.png)
+
+```shell
+// 自定义消息
+// WM_USER就是0x400因为一般不直接写0x400
+#define WM_MYMESSAGE WM_USER+1001
+```
+
+发送，爱在哪发送在哪发送，爱携带啥信息携带啥信息
+
+send跟post都能发
+
+![image-20230824173137983](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202308241731056.png)
+
+处理，到自己定义的窗口处理函数中处理，爱咋处理咋处理
+
+![image-20230824173226666](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202308241732757.png)
+
+![image-20230824173414586](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202308241734716.png)
+
+### 10.4 消息队列
+
+#### 10.4.1 消息队列的概念
+
+![image-20230825101542280](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202308251015460.png)
+
+#### 10.4.2 消息队列的分类
+
+![image-20230825104658595](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202308251046826.png)
+
+![image-20230825145725098](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202308251457193.png)
+
+#### 10.4.3 消息和队列的关系
+
+![image-20230825144243395](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202308251442741.png)
+
+![image-20230825144731517](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202308251447969.png)
+
+
+
+==WM_QUIT==是必须进队列的，其他大多数进不进都行
+
+==WM_CREATE==必须不能进队列，因为他是创建完成之后显示之前的时候，这时候没人能把他抓出来
+
+==消息本身没有队列还是非队列的属性==
+
+#### 10.4.4 深谈GetMessage原理
+
+==GetMessage只能在本进程的消息队列里抓消息==
+
+![image-20230825152127858](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202308251521585.png)
+
+#### 10.4.5 WM_PAINT消息
+
+![image-20230825152349238](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202308251523402.png)
+
+![image-20230825161016692](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202308251610887.png)
+
+![image-20230825161958270](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202308251619568.png)
+
+==// 绘图代码，必须放在处理WM_PAINT消息时调用。==
+
+### 10.5 键盘消息
+
+#### 10.5.1 键盘消息分类
+
+![image-20230828103055460](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202308281030703.png)
+
+大小写的a的键码值都是65，所以才需要翻译消息，不然分不出来
+
+#### 10.5.2 WM_CHAR 字符消息
+
+![image-20230828105932795](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202308281059090.png)
+
+TranslateMessage内部执行过程
+
+![image-20230828110843214](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202308281108539.png)
+
+
+
+### 10.6 鼠标消息
+
+#### 10.6.1 鼠标消息分类
+
+![image-20230825171947940](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202308251719313.png)
+
+#### 10.6.2 鼠标基本消息
+
+![image-20230828112138897](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202308281121260.png)
+
+#### 10.6.3 鼠标双击消息
+
+![image-20230828151407142](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202308281514557.png)
+
+#### 10.6.4 鼠标滚轮消息
+
+![image-20230828160754629](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202308281607988.png)
+
+### 10.7 定时器消息
+
+每隔一段炸一次的炸弹
+
+#### 10.7.1 定时器消息介绍
+
+==定时器消息是GetMessage在空闲的时候抓来发送WM_TIMER出去的，有几毫秒的误差，不是特别准==
+
+
+
+![image-20230828162404544](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202308281624985.png)
+
+#### 10.7.2 创建销毁定时器
+
+第一个参数hWnd的作用是找这个窗口的窗口处理函数处理
+
+==定时器埋在哪里都可以==
+
+
+
+![image-20230828164701488](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202308281647803.png)
+
+![image-20230828165603012](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202308281656142.png)
+
+# 11.达内资源相关
+
+### 11.1 菜单资源
+
+#### 11.1.1 菜单分类
+
+弹出式菜单主要有两种，一种是下拉菜单，一种是右键菜单
+
+![image-20230829090304260](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202308290903411.png)
+
+#### 11.1.2 资源相关
+
+![image-20230829091221619](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202308290912800.png)
+
+#### 11.1.3 菜单资源使用
+
+![image-20230829091639378](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202308290916665.png)
+
+有三种方法可以挂载菜单
+
+* 注册窗口类时设置菜单
+
+  ![image-20230829105626568](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202308291056638.png)
+
+* ==创建窗口传参设置菜单（个人更喜欢用）==
+
+  ![image-20230829110727971](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202308291107100.png)
+
+* 在主窗口WM_CREATE消息中利用SetMenu函数设置菜单
+
+  ![image-20230829111221720](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202308291112999.png)
+
+  ![image-20230829111235785](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202308291112966.png)
+
+#### 11.1.4 命令消息处理
+
+![image-20230829111333142](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202308291113335.png)
+
+
+
+#### 11.1.5 菜单项状态
+
+
+
+#### 11.1.6 上下文菜单
+
+
+
+### 11.2 图标资源
+
+![image-20230829112605892](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202308291126218.png)
+
+
+
+### 11.3 光标资源
+
+![image-20230830091716582](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202308300917958.png)
+
+光标更改比较频繁的时候可以使用SetCursor
+
+==此函数必须在WM_SETCURSOR中处理，只要光标移动，就会产生该消息==
+
+![image-20230830092837414](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202308300928681.png)
+
+
+
+
+
+### 11.4 字符串资源
+
+==字符串资源能非常方便的解决中英文两版的问题==
+
+![image-20230830095402930](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202308300954240.png)
+
+字符串表中的每一行都是一个id对应一个字符串
+
+![image-20230830110124937](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202308301101977.png)
+
+
+
+### 11.5 加速键资源
+
+加速键就是快捷键，一般快捷键在菜单栏上有一个一个对应的功能，虽然他们干的事情相同，但是两者在原理上没有一毛钱关系
+
+
+
+![image-20230830151218073](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202308301512437.png)
+
+执行逻辑伪代码
+
+==按加速键也能产生WM_COMMAND消息，但是不是按出来的，是TranslateAccelerator给发送出来的==
+
+![image-20230830152323540](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202308301523872.png)
+
+![image-20230830152933031](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202308301529441.png)
+
+![image-20230830153016703](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202308301530743.png)
+
+这里id故意写成跟菜单项的一致，就不用再去回调函数中处理command消息了，跟menu的公用一个
+
+![image-20230830153215617](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202308301532799.png)
+
+==加速键id和菜单项id统称为命令id==
+
+也可以用0和1将两者进行区分，不过不会这么用，因为区分的话就没必要绑定id名字一样
+
+![image-20230830153646123](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202308301536474.png)
+
+# 12. 达内线程相关
+
+### 12.1 线程
+
+==windows不同于linux很多多进程场景，微软主要是应用层，提倡基于线程的开发==
+
+进程开启意味着分内存，不意味着程序执行，线程开启才意味着程序执行
+
+
+
+
+
+#### 12.1.1 线程基础
+
+
+
+![image-20230830161409943](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202308301614093.png)
+
+
+
+#### 12.1.2 线程创建
+
+第一个属性安全属性， ==所有看到安全属性这个参数的地方，通通置空，这是一个废弃的属性==
+
+第二个参数栈空间大小，永远是按1M对齐，如果小于1M，按1M处理，向上补齐
+
+第三个参数写线程处理函数的名字，xxx处理函数这个函数由程序员定义，但是程序员不调用，由系统调用
+
+第四个参数是传递给线程处理函数的参数，因为是void* 填啥都行，填啥收到啥
+
+第五个参数是线程的创建方式，==线程的创建方式只有两种，一种是立即执行模式，一种是挂起模式（休眠方式）==
+
+第六个参数是接受操作系统返回的线程id
+
+返回值是线程句柄
+
+线程id和线程句柄都能代表一个线程
+
+![image-20230830162953925](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202308301629083.png)
+
+线程处理函数中的参数，是在创建线程的时候传递过来的
+
+
+
+#### 12.1.3 线程挂起/销毁
+
+
+
+#### 12.1.4 线程相关操作
+
+
+
+
+
+# 13. 线程和窗口的关系
 
 ![image-20230823100657414](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202308231006591.png)
