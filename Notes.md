@@ -852,7 +852,7 @@ TranslateMessage内部执行过程
 
 第二个参数栈空间大小，永远是按1M对齐，如果小于1M，按1M处理，向上补齐
 
-第三个参数写线程处理函数的名字，xxx处理函数这个函数由程序员定义，但是程序员不调用，由系统调用
+第三个参数写线程处理函数的名字，xxx处理函数这个函数由程序员定义，但是程序员不调用，由系统调用，==回调范畴==
 
 第四个参数是传递给线程处理函数的参数，因为是void* 填啥都行，填啥收到啥
 
@@ -872,14 +872,144 @@ TranslateMessage内部执行过程
 
 #### 12.1.3 线程挂起/销毁
 
+CREATE_SUSPENDED参数设置创建后的状态
 
+HANDLE hThread2 = CreateThread(NULL, 0, TestProc2, pszText2, CREATE_SUSPENDED, &nID); // 创建后被挂起
+
+![image-20230830165827667](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202308301658873.png)
+
+
+
+![image-20230830172141594](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202308301721878.png)
 
 #### 12.1.4 线程相关操作
 
 
 
+![image-20230830172228130](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202308301722432.png)
+
+==可等候的句柄必须具备有信号和无信号的两种状态，目前只有线程句柄，后面还有互斥句柄，事件句柄，信号量句柄==
+
+第二个参数是最大等候时间，时间到了就直接走了不等了，填INFINITE表示永远不会到时间，只能有信号才行
 
 
-# 13. 线程和窗口的关系
+
+* 等候多个
+
+  ==当线程处于执行信号的时候，线程句柄没有信号，当线程结束的时候，线程句柄变为有信号==
+
+  
+  
+  ![image-20230830173118077](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202308301731439.png)
+  
+  
+  
+  * 1
+  
+  
+  
+  
+  
+  
+  
+### 12.2 线程同步
+
+  有很多种对临界资源加锁的机制，四种加锁机制每一个使用场景不同
+
+  #### 12.2.1 原子锁
+
+  ==原子锁是所有加锁机制中最难用的一个，因为要记大量的函数，每一个操作符都有一个原子锁函数，然后原子锁局限性很大，他只能对运算符加锁==
+
+  ==唯一优点是效率高，所有的加锁机制中，原子锁是效率最高的==
+
+  ![image-20230831084916668](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202308310849152.png)
+
+  原子锁是对数据加锁，而不是对cpu加锁
+
+  原子锁是牺牲了效率，换来的正确率
+
+  其实结合汇编很好理解，这里的写需要保户
+
+  ![image-20230831094113601](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202308310941719.png)
+
+
+
+#### 12.2.2 互斥
+
+==互斥也是一种加锁技术==
+
+windows的互斥和linux的互斥锁解决的问题是一样的，但是实现的方式有差异
+
+==原子锁能解决的问题，互斥也能解决，但是互斥能解决的问题，原子锁不一定能解决，互斥的试用范围更大一些==
+
+原子锁主要解决的是操作符的操作
+
+互斥虽然功能强大，但是没有原子锁效率高
+
+
+
+互斥的特性：
+
+**==1. 在任何时间点上，只能有一个线程拥有某个互斥，其他线程只能等，互斥具有独占性和排他性==**
+
+**==2. 当任何线程都不拥有这个互斥句柄的时候，互斥句柄有信号，一旦有线程拥有他的时候，互斥句柄无信号==**
+
+![image-20230831103755044](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202308311037381.png)
+
+![image-20230831110818516](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202308311108720.png)
+
+创建互斥的参数
+
+```shell
+第一个参数，安全属性已废弃
+
+第二个参数，如果为TRUE，则哪个线程创建互斥，哪个线程就拥有互斥。如果为FALSE，则创建互斥的线程，并不拥有互斥
+
+第三个参数，可以给互斥起名字，不愿意起可以置空
+```
+
+等候互斥跟过去排队买火车票很像
+
+#### 12.2.3 事件
+
+==原子锁和互斥都是加锁机制，多个线程之间有排斥的关系，抢占资源==
+
+==事件和信号量实现的是线程之间的协调工作关系，不是排斥关系==
+
+事件句柄也具备有信号和无信号两种状态，也是可等候句柄，==事件句柄程序员可以自己控制什么时候有信号==
+
+![image-20230831144155102](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202308311441455.png)
+
+![image-20230831155555950](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202308311555239.png)
+
+事件死锁
+
+解决方案： 与技术无关，靠个人头脑清醒，因为这个是人为代码造成得
+
+
+
+![image-20230831164132863](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202308311641026.png)
+
+
+
+#### 12.2.4 信号量
+
+==信号量得作用跟事件类似，都是协调多个线程得工作，但是原理完全不同==
+
+信号量句柄也是可等候句柄
+
+==信号量句柄的计数值不为0的时候，信号量句柄有信号，递减到0的时候，信号量句柄无信号==
+
+![image-20230831165027670](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202308311650069.png)
+
+![image-20230831165616020](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202308311656383.png)
+
+# 13. VC驿站多线程篇
+
+[教程地址](https://www.bilibili.com/video/BV1ft411B7SY/?spm_id_from=333.999.0.0&vd_source=c6ca89f75d00cd4da634736edfcca1ae)
+
+
+
+# 14. 线程和窗口的关系
 
 ![image-20230823100657414](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202308231006591.png)
