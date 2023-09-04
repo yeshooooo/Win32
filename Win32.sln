@@ -31,6 +31,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "WinSema", "WinSema\WinSema.
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "VCThread01", "VCThread01\VCThread01.vcxproj", "{C783143B-D55F-42A1-9E34-C3B98B57B287}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "VC01FirstApp", "VC01FirstApp\VC01FirstApp.vcxproj", "{B61C1AF0-BF7A-43C4-AD75-2DB7D89F0F0C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -151,6 +153,14 @@ Global
 		{C783143B-D55F-42A1-9E34-C3B98B57B287}.Release|x64.Build.0 = Release|x64
 		{C783143B-D55F-42A1-9E34-C3B98B57B287}.Release|x86.ActiveCfg = Release|Win32
 		{C783143B-D55F-42A1-9E34-C3B98B57B287}.Release|x86.Build.0 = Release|Win32
+		{B61C1AF0-BF7A-43C4-AD75-2DB7D89F0F0C}.Debug|x64.ActiveCfg = Debug|x64
+		{B61C1AF0-BF7A-43C4-AD75-2DB7D89F0F0C}.Debug|x64.Build.0 = Debug|x64
+		{B61C1AF0-BF7A-43C4-AD75-2DB7D89F0F0C}.Debug|x86.ActiveCfg = Debug|Win32
+		{B61C1AF0-BF7A-43C4-AD75-2DB7D89F0F0C}.Debug|x86.Build.0 = Debug|Win32
+		{B61C1AF0-BF7A-43C4-AD75-2DB7D89F0F0C}.Release|x64.ActiveCfg = Release|x64
+		{B61C1AF0-BF7A-43C4-AD75-2DB7D89F0F0C}.Release|x64.Build.0 = Release|x64
+		{B61C1AF0-BF7A-43C4-AD75-2DB7D89F0F0C}.Release|x86.ActiveCfg = Release|Win32
+		{B61C1AF0-BF7A-43C4-AD75-2DB7D89F0F0C}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
