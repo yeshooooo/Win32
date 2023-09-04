@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 17
-VisualStudioVersion = 17.5.33627.172
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.33801.447
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "002", "002\002.vcxproj", "{15CB88EE-8023-4146-A3D0-F8CBCF860493}"
 EndProject
@@ -28,6 +28,8 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "WinEvent", "WinEvent\WinEvent.vcxproj", "{7C9049FD-0F14-4285-BC65-1754794FAEDD}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "WinSema", "WinSema\WinSema.vcxproj", "{DB588AA8-F252-48B4-A31F-28F35C4A9BF2}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "VCThread01", "VCThread01\VCThread01.vcxproj", "{C783143B-D55F-42A1-9E34-C3B98B57B287}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -141,6 +143,14 @@ Global
 		{DB588AA8-F252-48B4-A31F-28F35C4A9BF2}.Release|x64.Build.0 = Release|x64
 		{DB588AA8-F252-48B4-A31F-28F35C4A9BF2}.Release|x86.ActiveCfg = Release|Win32
 		{DB588AA8-F252-48B4-A31F-28F35C4A9BF2}.Release|x86.Build.0 = Release|Win32
+		{C783143B-D55F-42A1-9E34-C3B98B57B287}.Debug|x64.ActiveCfg = Debug|x64
+		{C783143B-D55F-42A1-9E34-C3B98B57B287}.Debug|x64.Build.0 = Debug|x64
+		{C783143B-D55F-42A1-9E34-C3B98B57B287}.Debug|x86.ActiveCfg = Debug|Win32
+		{C783143B-D55F-42A1-9E34-C3B98B57B287}.Debug|x86.Build.0 = Debug|Win32
+		{C783143B-D55F-42A1-9E34-C3B98B57B287}.Release|x64.ActiveCfg = Release|x64
+		{C783143B-D55F-42A1-9E34-C3B98B57B287}.Release|x64.Build.0 = Release|x64
+		{C783143B-D55F-42A1-9E34-C3B98B57B287}.Release|x86.ActiveCfg = Release|Win32
+		{C783143B-D55F-42A1-9E34-C3B98B57B287}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

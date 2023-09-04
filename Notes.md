@@ -1008,6 +1008,82 @@ windows的互斥和linux的互斥锁解决的问题是一样的，但是实现�
 
 [教程地址](https://www.bilibili.com/video/BV1ft411B7SY/?spm_id_from=333.999.0.0&vd_source=c6ca89f75d00cd4da634736edfcca1ae)
 
+### 13.1 认识与创建线程
+
+#### 13.1.1 使用Spy++工具查看系统中运行的进程与线程
+
+![image-20230904101203400](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202309041012466.png)
+
+![image-20230904101328627](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202309041013689.png)
+
+展开一个进程可以看见他里面的线程
+
+![image-20230904101430012](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202309041014057.png)
+
+有的线程里面还会创建窗口
+
+==线程依附于进程中的环境执行，创建窗口的工作是在线程中执行的，不可能是在进程中创建窗口==
+
+#### 13.1.2 创建线程的三种方式
+
+1. **CreateThread**
+
+   ==标准WIN32函数==
+
+   **需要手动关闭线程句柄**
+
+   [CreateThread 函数 (processthreadsapi.h) - Win32 apps | Microsoft Learn](https://learn.microsoft.com/zh-cn/windows/win32/api/processthreadsapi/nf-processthreadsapi-createthread)
+
+2. **AfxBeginThread**
+
+   ==MFC中==
+
+   **会自动释放，无需手动管理**
+
+   AfxBeginThread返回值是CWinThread的类型
+
+   [CWinThread 类 | Microsoft Learn](https://learn.microsoft.com/zh-cn/cpp/mfc/reference/cwinthread-class?view=msvc-170)
+
+   ==AfxBeginThread有两种方式，一种是工作线程，一种是界面线程==
+
+   不建议在工作线程上操作界面和按钮,工作线程和界面线程的上下文不一样
+
+   [应用程序信息和管理 | Microsoft Learn](https://learn.microsoft.com/zh-cn/cpp/mfc/reference/application-information-and-management?view=msvc-170#afxbeginthread)
+
+   两个创建工作线程的函数
+
+   ```cpp
+   // 一般情况下，后四个参数有默认值，不用写
+   CWinThread* AfxBeginThread(
+       AFX_THREADPROC pfnThreadProc,
+       LPVOID pParam,
+       int nPriority = THREAD_PRIORITY_NORMAL,
+       UINT nStackSize = 0,
+       DWORD dwCreateFlags = 0,
+       LPSECURITY_ATTRIBUTES lpSecurityAttrs = NULL);
+   
+   CWinThread* AfxBeginThread(
+       CRuntimeClass* pThreadClass,
+       int nPriority = THREAD_PRIORITY_NORMAL,
+       UINT nStackSize = 0,
+       DWORD dwCreateFlags = 0,
+       LPSECURITY_ATTRIBUTES lpSecurityAttrs = NULL);
+   ```
+
+   ![image-20230904141615911](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202309041416230.png)
+
+   因为返回的CWinThread类型的指针中，有默认自动回收的属性
+
+3. **_beginthreadex**
+
+   ==C和C++中的==
+
+   **需要手动关闭线程句柄**
+
+   [_beginthread、_beginthreadex | Microsoft Learn](https://learn.microsoft.com/zh-cn/cpp/c-runtime-library/reference/beginthread-beginthreadex?view=msvc-170)
+
+==方法二和方法三都是间接的调用方式一==
+
 
 
 # 14. 线程和窗口的关系
