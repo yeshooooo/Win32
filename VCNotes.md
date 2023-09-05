@@ -352,3 +352,22 @@ CStringA 内部使用的是 char*，CStringW 内部使用的是 wchar_t*，CStri
 
 # 7. Windows编程中常用的数据类型
 
+![image-20230905165410645](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202309051654572.png)
+
+![image-20230905165716375](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202309051657193.png)
+
+![image-20230905170658673](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202309051706716.png)
+
+==32位和64位系统上不区分长短指针了，加不加L已经无所谓了==
+
+![image-20230905170825450](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202309051708562.png)
+
+![image-20230905171059254](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202309051711594.png)
+
+![image-20230905171323230](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202309051713206.png)
+
+![image-20230905171545325](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202309051715298.png)
+
+![image-20230905171647177](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202309051716064.png)
+
+![image-20230905171747213](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202309051717589.png)
