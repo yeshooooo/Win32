@@ -371,3 +371,289 @@ CStringA 内部使用的是 char*，CStringW 内部使用的是 wchar_t*，CStri
 ![image-20230905171647177](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202309051716064.png)
 
 ![image-20230905171747213](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202309051717589.png)
+
+# 8.  URLDownloadFile和 ShellExecuteEx
+
+### 8.1 自动下载文件URLDownloadFile
+
+URLDownloadToFile 函数说明 :
+
+简介：
+指从指定URL地址读取内容并将读取到的内容保存到特定的文件里。
+
+```cpp
+HRESULT URLDownloadToFile( 
+    LPUNKNOWN pCaller,
+    LPCTSTR szURL,
+    LPCTSTR szFileName,
+    DWORD dwReserved,
+    LPBINDSTATUSCALLBACK lpfnCB
+);
+```
+
+
+
+**参数：**
+pCaller：Pointer to the controlling IUnknown interface of the calling Microsoft ActiveX component (if the caller is an ActiveX component).
+//该参数为 ActiveX 控件的接口指针，如果当前程序不是 ActiveX 控件则写 NULL 就可以了。
+
+szURL
+Pointer to a string value containing the URL to be downloaded. Cannot be set to NULL.
+//该参数为要下载的 url 地址，不能为空。
+
+szFileName
+Pointer to a string value containing the name of the file to create for bits that come from the download.
+//下载文件后，保存的文件名字，包含文件的具体路径信息。
+
+dwReserved
+Reserved. Must be set to 0.
+//保留字段，必需为0。
+
+lpfnCB
+Pointer to the caller's IBindStatusCallback interface. URLDownloadToFile calls this interface's IBindStatusCallback::OnProgress method on a connection activity, including the arrival of data. IBindStatusCallback::OnDataAvailable is never called.
+//下载进度状态回调接口的指针。如果要实时监视下载文件的状态那么就要用到这个参数了。
+
+**返回值：**
+S_OK : 成功下载；
+E_OUTOFMEMORY：缓冲区长度不够，或者没有足够的内存来完成下载的操作；
+INET_E_DOWNLOAD_FAILURE：指定的资源或者回调接口有问题。
+
+**实例**
+
+![image-20230906094740317](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202309060947372.png)
+
+#pragma comment(lib, "Urlmon.lib")
+
+```cpp
+HRESULT hRet = URLDownloadToFile(NULL, TEXT("https://s.cctry.com/images/eagle2.png"), TEXT("D:\\cctry.png"), 0, NULL);
+```
+
+### 8.2 自动执行文件 ShellExecuteEx
+
+==准确的说他是一个Shell API，不是Windows系统的标准API, 是经过微软封装过的一层==
+
+**简介：** 可以使用 ShellExecuteEx 打开文件或执行程序
+
+**语法格式：**
+
+```cpp
+BOOL ShellExecuteEx(
+  _Inout_ SHELLEXECUTEINFO *pExecInfo
+ );
+```
+
+**参数：**
+输入输出参数都是 SHELLEXECUTEINFO 结构体，其结构定义如下：
+
+```cpp
+typedef struct _SHELLEXECUTEINFO
+{
+  DWORD    cbSize;//结构大小,一般直接写sizeof(SHELLEXECUTEINFO)，这个参数是为以后可能的扩展考虑的 ---重要
+  ULONG     fMask;//指定结构成员的有效性，指定哪个有效，比如是想打开程序，网址等等
+  HWND      hwnd;//父窗口句柄或出错时显示错误父窗口的句柄，可以为 NULL
+  LPCTSTR   lpVerb;//指定该函数的执行动作            ---重要
+  LPCTSTR   lpFile;//操作对象路径
+  LPCTSTR   lpParameters;//执行参数，可以为 ULL
+  LPCTSTR   lpDirectory;//工作目录，可以为 NULL
+  int             nShow;//显示方式
+  HINSTANCE hInstApp;//如果设置了 SEE_MASK_NOCLOSEPROCESS ,并且调用成功则该值大于32，调用失败者被设置错误值
+  LPVOID     lpIDList;//ITEMIDLIST结构的地址，存储成员的特别标识符，当fMask不包括SEE_MASK_IDLIST或SEE_MASK_INVOKEIDLIST时该项被忽略
+  LPCTSTR   lpClass;//指明文件类别的名字或GUID，当fMask不包括SEE_MASK_CLASSNAME时该项被忽略
+  HKEY        hkeyClass;//获得已在系统注册的文件类型的Handle，当fMask不包括SEE_MASK_HOTKEY时该项被忽略
+  DWORD   dwHotKey;//程序的热键关联，低位存储虚拟关键码（Key Code），高位存储修改标志位(HOTKEYF_)，当fmask不包括SEE_MASK_HOTKEY时该项被忽略
+
+  union
+  {
+    HANDLE hIcon;//取得对应文件类型的图标的Handle，当fMask不包括SEE_MASK_ICON时该项被忽略
+    HANDLE hMonitor;//将文档显示在显示器上的Handle，当fMask不包括SEE_MASK_HMONITOR时该项被忽略
+  } DUMMYUNIONNAME;
+
+  HANDLE    hProcess;//指向新启动的程序的句柄。若fMask不设为SEE_MASK_NOCLOSEPROCESS则该项值为NULL。
+                     //但若程序没有启动，即使fMask设为SEE_MASK_NOCLOSEPROCESS，该值也仍为NULL。
+                     //如果没有新创建进程，也会为空
+
+} SHELLEXECUTEINFO, *LPSHELLEXECUTEINFO;
+```
+
+**fMask** 用于指定结构成员的内容和有效性，可为下列值的组合：
+
+● SEE_MASK_DEFAULT (0)默认
+● SEE_MASK_CLASSNAME 使用 lpClass 参数，如果 SEE_MASK_CLASSKEY 也有效，则用后者
+● SEE_MASK_CLASSKEY 使用 hkeyClass 参数
+● SEE_MASK_IDLIST 使用 lpIDList 参数
+● SEE_MASK_INVOKEIDLIST 使用选定项目的快捷菜单 IContextMenu 接口处理程序
+● SEE_MASK_ICON 使用 hIcon 给出的菜单，不能与 SEE_MASK_HMONITOR 共用，Vista之后
+● SEE_MASK_HOTKEY 使用 dwHotKey 参数
+● SEE_MASK_NOCLOSEPROCESS 如果执行之后需要返回进程句柄，或者等待执行完毕的话，则需要指定该参数，从结构参数意义可以看到 hProcess 和 hInstApp 都依赖该选项
+● SEE_MASK_CONNECTNETDRV 验证共享并连接到驱动器号
+● SEE_MASK_NOASYNC 不等待操作完成，直接返回，会创建一个后台线程运行。
+● SEE_MASK_FLAG_DDEWAIT 弃用，使用 SEE_MASK_NOASYNC
+● SEE_MASK_DOENVSUBST 环境变量会被展开
+● SEE_MASK_FLAG_NO_UI 出现错误，不显示错误消息框，比如不会弹出找不到文件之类的窗口，直接返回失败
+● SEE_MASK_UNICODE UNICODE 程序
+● SEE_MASK_NO_CONSOLE 继承父进程的控制台，而不是创建新的控制台，与 CREATE_NEW_CONSOLE 相反
+● SEE_MASK_ASYNCOK 执行在后台线程，调用立即返回
+● SEE_MASK_NOQUERYCLASSSTORE 弃用
+● SEE_MASK_HMONITOR 使用 hmonitor，不能与 SEE_MASK_ICON 共存
+● SEE_MASK_NOZONECHECKS 不执行区域检查
+● SEE_MASK_WAITFORINPUTIDLE 创建新进程后，等待进程变为空闲状态再返回，超时时间为1分钟
+● SEE_MASK_FLAG_LOG_USAGE 跟踪应用程序启动次数
+● SEE_MASK_FLAG_HINST_IS_SITE
+
+**lpVerb** 参数与 ShellExecute 的 lpOperation 参数一致：
+edit 用编辑器打开 lpFile 指定的文档，如果 lpFile 不是文档，则会失败
+explore 浏览 lpFile 指定的文件夹
+find 搜索 lpDirectory 指定的目录
+open 打开 lpFile 文件，lpFile 可以是文件或文件夹
+print 打印 lpFile，如果 lpFile 不是文档，则函数失败
+properties 显示属性
+runas 请求以管理员权限运行，比如以管理员权限运行某个exe
+NULL ==执行默认”open”动作==
+
+**nShow** 与 ShellExecute 的该参数一致：
+● SW_HIDE 隐藏窗口，活动状态给令一个窗口
+● SW_MINIMIZE 最小化窗口，活动状态给令一个窗口
+● SW_RESTORE 用原来的大小和位置显示一个窗口，同时令其进入活动状态
+● SW_SHOW 用当前的大小和位置显示一个窗口，同时令其进入活动状态
+● SW_SHOWMAXIMIZED 最大化窗口，并将其激活
+● SW_SHOWMINIMIZED 最小化窗口，并将其激活
+● SW_SHOWMINNOACTIVE 最小化一个窗口，同时不改变活动窗口
+● SW_SHOWNA 用当前的大小和位置显示一个窗口，不改变活动窗口
+● SW_SHOWNOACTIVATE 用最近的大小和位置显示一个窗口，同时不改变活动窗口
+● SW_SHOWNORMAL 与SW_RESTORE相同
+
+如果设置了 SEE_MASK_NOCLOSEPROCESS ，调用成功则 hInstApp 返回大于32的值，调用失败会返回：
+● SE_ERR_FNF (2) 文件未找到
+● SE_ERR_PNF (3) 路径未找到
+● SE_ERR_ACCESSDENIED (5) 拒绝访问
+● SE_ERR_OOM (8) 内存不足
+● SE_ERR_DLLNOTFOUND (32) 动态库未找到
+● SE_ERR_SHARE (26) 无法共享打开的文件
+● SE_ERR_ASSOCINCOMPLETE (27) 文件关联信息不完整
+● SE_ERR_DDETIMEOUT (28) 操作超时
+● SE_ERR_DDEFAIL (29) 操作失败
+● SE_ERR_DDEBUSY (30) DDE 操作忙
+● SE_ERR_NOASSOC (31) 文件关联不可用
+
+**返回值：**
+函数执行成功，返回 TRUE ，否则返回 FALSE ，可使用 GetLastError 获取错误码。
+
+● ERROR_FILE_NOT_FOUND 文件不存在
+● ERROR_PATH_NOT_FOUND 路径不存在
+● ERROR_DDE_FAIL DDE(动态数据交换)失败
+● ERROR_NO_ASSOCIATION 未找到与指定文件拓展名关联的应用
+● ERROR_ACCESS_DENIED 拒绝访问
+● ERROR_DLL_NOT_FOUND 未找到dll
+● ERROR_CANCELLED 功能提示用户提供额外信息，但是用户取消请求。
+● ERROR_NOT_ENOUGH_MEMORY 内存不足
+● ERROR_SHARING_VIOLATION 发生共享冲突
+
+**实例：**
+
+```cpp
+SHELLEXECUTEINFO sei;
+ZeroMemory(&sei, sizeof(SHELLEXECUTEINFO));//使用前最好清空
+sei.cbSize = sizeof(SHELLEXECUTEINFO);//管理员权限执行cmd，最基本的使用与 ShellExecute 类似
+sei.lpFile = _T("cmd.exe");
+sei.nShow = SW_SHOW;
+sei.lpVerb = _T("runas");
+ShellExecuteEx(&sei);
+
+ZeroMemory(&sei, sizeof(SHELLEXECUTEINFO));
+sei.cbSize = sizeof(SHELLEXECUTEINFO);
+sei.lpFile = _T("cmd.exe");
+sei.nShow = SW_SHOW;
+sei.fMask = SEE_MASK_NOCLOSEPROCESS;//使用 SEE_MASK_NOCLOSEPROCESS 参数
+sei.lpVerb = _T("open");
+if (ShellExecuteEx(&sei))//执行成功
+{
+    if (sei.hProcess)//指定 SEE_MASK_NOCLOSEPROCESS 并其成功执行，则 hProcess 将会返回执行成功的进程句柄
+        WaitForSingleObject(sei.hProcess, INFINITE);//等待执行完毕
+}
+else
+{
+    CString s;
+    s.Format(_T("ShellExecuteEx error,error code:%d"), GetLastError());
+    MessageBox(s);
+}
+```
+
+其他诸如打开文件、打开网页等与 ShellExecute 类似。
+
+#### 8.2.1 实战
+
+1. 打开刚刚下载的图片/程序
+2. 打开记事本
+3. 打开计算器
+4. 打开QQ
+5. 用默认浏览器打开指定网址
+
+# 9. 文件的删除、复制与重命名操作
+
+### 9.1 文件的删除： DeleteFile
+
+**简介：** 可以使用 DeleteFile 删除指定存在的文件
+
+```cpp
+BOOL WINAPI DeleteFile(
+  _In_  LPCTSTR lpFileName
+);
+```
+
+**参数：**
+lpFileName
+必选项，指定要删除文件的路径。
+
+**返回值：**
+函数执行成功，返回 TRUE ，否则返回 FALSE ，可使用 GetLastError 获取错误码。
+
+备注：如果程序尝试删除一个不存在的文件，GetLastError 返回 ERROR_FILE_NOT_FOUND。如果文件是只读的，则 GetLastError 返回 ERROR_ACCESS_DENIED。
+
+### 9.2 文件的复制: CopyFile
+
+**CopyFile 函数说明**
+
+**简介：** 可以使用 CopyFile 拷贝指定存在的文件到目标路径文件。
+
+```cpp
+BOOL CopyFile(
+  LPCTSTR lpExistingFileName,
+  LPCTSTR lpNewFileName,
+  BOOL    bFailIfExists
+);
+```
+
+**参数：**
+lpExistingFileName：要拷贝的源文件的路径
+lpNewFileName：要拷贝到的目标文件的路径
+bFailIfExists：传递TRUE：如果目标文件已经存在，不拷贝，CopyFile 返回 FALSE，
+传递 FALSE，如果目标文件已经存在，覆盖目标文件
+
+**返回值：**
+函数执行成功，返回 TRUE ，否则返回 FALSE ，可使用 GetLastError 获取错误码。
+
+### 9.3 文件移动: **MoveFile**
+
+==相同路径下就是改名了==
+
+**简介：** 可以使用 MoveFile 移动一个已存在的文件或者**文件夹**到新的位置
+
+```cpp
+BOOL MoveFile(
+  LPCTSTR lpExistingFileName,
+  LPCTSTR lpNewFileName
+);
+```
+
+**参数：**
+lpExistingFileName：要移动的源文件或者文件夹的路径
+lpNewFileName：要移动到的目标文件或者文件夹的路径
+
+**返回值：**
+函数执行成功，返回 TRUE ，否则返回 FALSE ，可使用 GetLastError 获取错误码。
+
+# 10. GetLastError
+
+![image-20230906170229197](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202309061702037.png)
+
+==函数执行成功了，也可以调用GetLastError，他会返回Error_SUCCESS==
