@@ -1660,3 +1660,15 @@ WC:WINDOW Class ? Windos Control
 ### 17.4 按钮控件的点击响应：
 
 ![image-20230909112920386](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202309091129088.png)
+
+从达内讲解的来看，都是WM_COMMAND里处理，父窗口中带来了
+
+![image-20230910004636850](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202309100046264.png)
+
+# 18. 高级列表控件的使用
+
+![image-20230910013356126](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202309100133592.png)
+
+### 18.1 列表控件的操作流程(主动)
+
+![image-20230910014715937](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202309100147679.png)
