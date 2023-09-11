@@ -138,7 +138,46 @@ LRESULT CALLBACK WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		}
 
 		break;
-		// 处理点击事件
+
+	// 被动处理选中ListView中某一行
+	case WM_NOTIFY:
+	{
+		NMHDR* pNmHdr = (NMHDR*)lParam;
+		// 通过基类的ID判断是否是列表控件
+		if (pNmHdr->idFrom == IDC_LIST_1)
+		{
+			if (pNmHdr->code == NM_CLICK) // 判断是否是点击事件
+			{
+				LPNMITEMACTIVATE lpnmitem = (LPNMITEMACTIVATE)lParam;
+				lpnmitem->iItem;// 获取点击的行
+				lpnmitem->iSubItem; // 获取点击的列
+
+				TCHAR szText[128] = { 0 };
+				_stprintf_s(szText, _T("点击的是 %d 行， %d 列！"), lpnmitem->iItem, lpnmitem->iSubItem);
+				MessageBox(hWnd, szText, _T("Tip"), MB_OK);
+			}
+
+
+		}
+		// 判断列表中间框框拖拽完毕事件
+		if (pNmHdr->code == HDN_ENDTRACK)
+		{
+			HWND hListHeader = ListView_GetHeader(hListCtrl);
+			if (hListHeader == pNmHdr->hwndFrom)
+			{
+				// 获取第一列宽度
+				int nColWidth = ListView_GetColumnWidth(hListHeader, 1);
+				TCHAR szText[128] = { 0 };
+				_stprintf_s(szText, _T("第一列的宽度是 %d"), nColWidth);
+				MessageBox(hWnd, szText, _T("Tip"), MB_OK);
+			}
+			
+		}
+
+
+	}
+		break;
+	// 处理点击事件
 	case WM_COMMAND:
 	{
 		// lParam保存的是控件的句柄，我们ID和句柄保存任意一个就可以

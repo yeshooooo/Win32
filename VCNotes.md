@@ -1672,3 +1672,25 @@ WC:WINDOW Class ? Windos Control
 ### 18.1 列表控件的操作流程(主动)
 
 ![image-20230910014715937](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202309100147679.png)
+
+
+
+### 18.2 列表控件的被动消息响应
+
+![image-20230911084551325](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202309110845681.png)
+
+![image-20230911085649588](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202309110856645.png)
+
+![image-20230911085715573](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202309110857628.png)
+
+![image-20230911085630272](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202309110856340.png)
+
+![image-20230911085817705](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202309110858829.png)
+
+![image-20230911090320488](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202309110903592.png)
+
+![image-20230911090715206](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202309110907367.png)
+
+![image-20230911092223359](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202309110922487.png)
+
+![image-20230911092311118](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202309110923227.png)
