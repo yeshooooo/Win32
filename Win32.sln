@@ -51,6 +51,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "FirstApp", "FirstApp\FirstA
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Win32Dialog", "Win32Dialog\Win32Dialog.vcxproj", "{A6AE9873-60C1-4D2B-82DE-F3E16FF24789}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "WinPaintN", "WinPaintN\WinPaintN.vcxproj", "{51C273FD-ABD3-4D20-BE5A-DAF8E5DB998E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -251,6 +253,14 @@ Global
 		{A6AE9873-60C1-4D2B-82DE-F3E16FF24789}.Release|x64.Build.0 = Release|x64
 		{A6AE9873-60C1-4D2B-82DE-F3E16FF24789}.Release|x86.ActiveCfg = Release|Win32
 		{A6AE9873-60C1-4D2B-82DE-F3E16FF24789}.Release|x86.Build.0 = Release|Win32
+		{51C273FD-ABD3-4D20-BE5A-DAF8E5DB998E}.Debug|x64.ActiveCfg = Debug|x64
+		{51C273FD-ABD3-4D20-BE5A-DAF8E5DB998E}.Debug|x64.Build.0 = Debug|x64
+		{51C273FD-ABD3-4D20-BE5A-DAF8E5DB998E}.Debug|x86.ActiveCfg = Debug|Win32
+		{51C273FD-ABD3-4D20-BE5A-DAF8E5DB998E}.Debug|x86.Build.0 = Debug|Win32
+		{51C273FD-ABD3-4D20-BE5A-DAF8E5DB998E}.Release|x64.ActiveCfg = Release|x64
+		{51C273FD-ABD3-4D20-BE5A-DAF8E5DB998E}.Release|x64.Build.0 = Release|x64
+		{51C273FD-ABD3-4D20-BE5A-DAF8E5DB998E}.Release|x86.ActiveCfg = Release|Win32
+		{51C273FD-ABD3-4D20-BE5A-DAF8E5DB998E}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
