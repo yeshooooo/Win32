@@ -1793,3 +1793,281 @@ lpDialogFunc：指向对话框窗口函数的指针。更详细的关于对话�
 **返回值：**
 如果函数调用成功，则返回值为在对函数 EndDialog 的调用中的 nResult 参数，该函数用于中止对话框。如果函数调用失败，则返回值为 -1。若想获得更多的错误信息，请调用 GetLastError 函数。
 
+### 20.4 模态对话框的消息响应
+
+==消息响应既适用于模态对话框，也适用于非模态对话框==
+
+![image-20230911210739995](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202309112107800.png)
+
+![image-20230911211630726](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202309112116288.png)
+
+#### 1. 窗口消息的处理，跟win32一样，都是WM_COMMAND
+
+
+
+```cpp
+// Win32 Dialog
+#include <Windows.h>
+#include "resource.h"
+
+// 对话框回调函数
+INT_PTR CALLBACK CcTryDialogProc(
+	HWND hwndDlg,
+	UINT uMsg,
+	WPARAM wParam,
+	LPARAM lParam
+)
+{
+	switch (uMsg)
+	{
+	case WM_COMMAND:
+	{
+		UINT nCtrlID = LOWORD(wParam);
+		UINT nCode = HIWORD(wParam);
+
+		if ( nCode == BN_CLICKED)
+		{
+			if ( nCtrlID == IDC_BTN_1)
+			{
+				MessageBox(hwndDlg, TEXT("按钮1被点击了"), TEXT("Tip"), MB_OK);
+			}
+			else if ( nCtrlID == IDC_BTN_2)
+			{
+				MessageBox(hwndDlg, TEXT("按钮2被点击了"), TEXT("Tip"), MB_OK);
+			}
+			// 处理了就return true;
+			return TRUE;
+		}
+
+	}
+	default:
+		break;
+	}
+	return FALSE;
+}
+
+int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
+{
+	// 第二个参数使用微软提供的宏把资源ID转成字符串MAKEINTRESOURCE
+	DialogBox(hInstance, MAKEINTRESOURCE(IDD_DIALOG1), NULL, CcTryDialogProc);
+	return 0;
+}
+```
+
+
+
+#### 2.初始化消息不一样
+
+win32在WM_CREATE里，对话框在WM_INITDIALOG里,模态与非模态都适用
+
+### 20.5 模态对话框的关闭
+
+#### 1. 两个特殊的按钮：ID_OK和ID_CANCEL
+
+==ID_OK和ID_CANCEL==这两个按钮，并没有定义，resources.h里没有，是系统预定义的
+
+点击这两个表示关闭对话框窗口
+
+#### 2. 模态对话框的关闭： EndDialog
+
+==模态对话框和非模态对话框关闭调用的API是不一样的==
+
+
+
+**EndDialog 函数说明**
+
+**函数简介：** EndDialog 是关闭或者结束一个模态对话框，并使系统中止对对话框的任何处理的函数。
+
+**函数声明：**
+
+```cpp
+BOOL EndDialog(
+  HWND    hDlg,
+  INT_PTR nResult
+);
+```
+
+**参数说明：**
+hDlg：表示要被关闭或结束的对话框窗口的窗口句柄；
+nResult：指定从创建模态对话框函数返回到应用程序的值。
+
+==结果会作为WinMain中DialogBox函数的返回值返回==
+
+![image-20230911221947914](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202309112219215.png)
+
+**返回值：**
+如果函数调用成功，则返回值为TRUE；如果函数调用失败则返回值为FALSE。若想获得错误信息请调用 GetLastError 函数。
+
+备注：由DialogBox、DialogBoxParam、DialogBoxlndirect 和 DialogBoxlndirectParam 函数创建的对话框一定要用 EndDialog 函数来清除。应用程序从对话框应用程序内部调用 EndDialog 函数，该函数不能为其他目的而供使用。
+对话框应用程序可以在任何时间调用 EndDialog 函数；甚至在 WM_INITDIALOG 消息处理过程中。如果应用程序在 WM_INITDIALOG 消息处理过程中调用该函数，则对话框在显示和输入焦点被设置之前对话框被清除。
+EndDialog函数并不立即清除对话框。而是设置一个标志，并且允许对话框应用程序把控制权返回系统。系统在试图从应用程序队列检索下一个消息之前检测标志。如果已经设置了标志则系统中止消息循环，清除对话框，且用 nResult 中的值作为从创建对话框的函数中返回的值。
+
+
+
+# 21. 非模态对话框
+
+跟模态对话框不一样的地方：
+
+==创建对话框的方式和关闭对话框的方式不一样==
+
+### 21.1 创建对话框资源模板
+
+
+
+### 21.2 添加对话框窗口处理函数DialogProc
+
+```cpp
+INT_PTR CALLBACK DialogProc(
+        HWND hwndDlg,
+        UINT uMsg,
+        WPARAM wParam,
+        LPARAM lParam
+);
+```
+
+
+
+### 21.3 模态对话框的创建： CreateDialog
+
+**CreateDialog 函数说明**
+
+**函数简介：**
+CreateDialog 从一个对话框模板资源创建一个非模态的对话框，CreateDiaog 内部调用的是 CreateDialogParam 函数，CreateDialogParam 函数内部调用的是 CreateWindowEx 创建的窗口。
+
+**函数声明：**
+
+```cpp
+HWND CreateDialog(
+  HINSTANCE hInstance,
+  LPCSTR    lpTemplateName,
+  HWND      hWndParent,
+  DLGPROC   lpDialogFunc
+);
+```
+
+**参数说明：**
+hInstance：标识一个模块的实例，该模块的可执行文件含有对话框模板，比如有的对话框资源模版是在EXE的资源中，有的是在DLL的资源中，根据实际情况而定；
+lpTemplateName: 标识对话框资源模板，此参数可以是指向一个以 NULL 结尾的字符串的指针。该字符串指定对话框模板名，或是指定对话框模板的资源标识符中的一个整型值。如果此参数指定了一个资源标识符则它的高位字一定为零，且低位字一定含有标识符。要用 MAKEINTRESOURCE 宏指令创建此值。
+
+==MAKEINTRESOURCE宏转换ID==,如`MAKEINTRESOURCE(IDD_DIALOG1)`
+
+hWndParent: 指定拥有对话框的==父窗口==；
+lpDialogFunc: 指向对话框窗口函数的指针。更详细的关于对话框窗口函数的信息，请参见：https://www.cctry.com/thread-298982-1-1.html
+
+**返回值：**
+如果函数调用成功，则返回值为指向新创建的对话框的窗口句柄；如果函数调用失败，则返回值为 NULL。若想获得更多的错误信息，可调用 GetLastError 函数。
+
+```cpp
+#include <Windows.h>
+#include "resource.h"
+INT_PTR CALLBACK DialogProc(
+	HWND hwndDlg,
+	UINT uMsg,
+	WPARAM wParam,
+	LPARAM lParam
+)
+{
+
+
+	return FALSE;
+}
+int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
+{
+	// 创建与显示对话框(与模态对话框不同)
+	// 返回值是非模态对话框的窗口句柄
+	HWND hWndDlg =  CreateDialog(hInstance, MAKEINTRESOURCE(IDD_DIALOG1), NULL, DialogProc);
+	ShowWindow(hWndDlg,SW_SHOW); //让非模态对话框显示
+	
+	// 必须加上消息循环，不然会闪退（在另外窗口的子窗口不用加消息循环）
+	MSG msg = { 0 };
+	while (GetMessage(&msg, NULL, 0, 0))
+	{
+		TranslateMessage(&msg);
+		DispatchMessage(&msg);
+	}
+	return 0;
+}
+```
+
+### 21.4 模态对话框的消息响应
+
+跟模态对话框的一样
+
+### 21.5 模态对话框的关闭
+
+这里用DestroyWindow关闭，因为EndDialog清理不干净
+
+```cpp
+#include <Windows.h>
+#include "resource.h"
+INT_PTR CALLBACK DialogProc(
+	HWND hwndDlg,
+	UINT uMsg,
+	WPARAM wParam,
+	LPARAM lParam
+)
+{
+	switch (uMsg)
+	{
+	case WM_INITDIALOG:
+		MessageBox(hwndDlg, TEXT("对话框窗口初始化完成"), TEXT("Tip"), MB_OK);
+		break;
+	case WM_COMMAND:
+	{
+		UINT nCtrlID = LOWORD(wParam);
+		UINT nCode = HIWORD(wParam);
+
+		if (nCode == BN_CLICKED)
+		{
+			if (nCtrlID == IDC_BUTTON1)
+			{
+				MessageBox(hwndDlg, TEXT("按钮1被点击了"), TEXT("Tip"), MB_OK);
+			}
+
+			// 取消按钮
+			else if (nCtrlID == IDCANCEL)
+			{
+				int iret = MessageBox(hwndDlg, TEXT("您确定要关闭该窗口码"), TEXT("Tip"), MB_OKCANCEL);
+				if (iret)
+				{
+					DestroyWindow(hwndDlg); //非模态对话框用DestroyWindow关闭
+                    PostQuitMessage(0); // 并且发送退出消息，否则消息循环不能结束
+				}
+
+			}
+
+			// 处理了就return true;
+			return TRUE;
+		}
+
+	}
+	default:
+		break;
+	}
+	return FALSE;
+
+}
+int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
+{
+	// 创建与显示对话框(与模态对话框不同)
+	// 返回值是非模态对话框的窗口句柄
+	HWND hWndDlg =  CreateDialog(hInstance, MAKEINTRESOURCE(IDD_DIALOG1), NULL, DialogProc);
+	ShowWindow(hWndDlg,SW_SHOW); //让非模态对话框显示
+	
+	// 必须加上消息循环，不然会闪退（在另外窗口的子窗口不用加消息循环）
+	MSG msg = { 0 };
+	while (GetMessage(&msg, NULL, 0, 0))
+	{
+		TranslateMessage(&msg);
+		DispatchMessage(&msg);
+	}
+	return 0;
+}
+```
+
+==在作为其他窗口的子窗口适用时，PostQuitMessage(0)和消息循环都不用加==
+
+# 22. 对话框和窗口的对比
+
+![image-20230912002007716](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202309120020645.png)
+
