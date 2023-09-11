@@ -49,6 +49,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "APITest", "APITest\APITest.
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "FirstApp", "FirstApp\FirstApp.vcxproj", "{A45A3337-9D21-4A98-9CDA-2EF6082AEC20}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Win32Dialog", "Win32Dialog\Win32Dialog.vcxproj", "{A6AE9873-60C1-4D2B-82DE-F3E16FF24789}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -241,6 +243,14 @@ Global
 		{A45A3337-9D21-4A98-9CDA-2EF6082AEC20}.Release|x64.Build.0 = Release|x64
 		{A45A3337-9D21-4A98-9CDA-2EF6082AEC20}.Release|x86.ActiveCfg = Release|Win32
 		{A45A3337-9D21-4A98-9CDA-2EF6082AEC20}.Release|x86.Build.0 = Release|Win32
+		{A6AE9873-60C1-4D2B-82DE-F3E16FF24789}.Debug|x64.ActiveCfg = Debug|x64
+		{A6AE9873-60C1-4D2B-82DE-F3E16FF24789}.Debug|x64.Build.0 = Debug|x64
+		{A6AE9873-60C1-4D2B-82DE-F3E16FF24789}.Debug|x86.ActiveCfg = Debug|Win32
+		{A6AE9873-60C1-4D2B-82DE-F3E16FF24789}.Debug|x86.Build.0 = Debug|Win32
+		{A6AE9873-60C1-4D2B-82DE-F3E16FF24789}.Release|x64.ActiveCfg = Release|x64
+		{A6AE9873-60C1-4D2B-82DE-F3E16FF24789}.Release|x64.Build.0 = Release|x64
+		{A6AE9873-60C1-4D2B-82DE-F3E16FF24789}.Release|x86.ActiveCfg = Release|Win32
+		{A6AE9873-60C1-4D2B-82DE-F3E16FF24789}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

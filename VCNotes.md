@@ -1694,3 +1694,102 @@ WC:WINDOW Class ? Windos Control
 ![image-20230911092223359](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202309110922487.png)
 
 ![image-20230911092311118](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202309110923227.png)
+
+# 19. win32对话框程序
+
+![image-20230911102555085](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202309111025188.png)
+
+### 19.1 对话框
+
+![image-20230911103332169](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202309111033369.png)
+
+![image-20230911103633280](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202309111036462.png)
+
+![image-20230911103842890](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202309111038319.png)
+
+==这里其他窗口就是父窗口==
+
+### 19.2 对话框的使用流程
+
+![image-20230911104723245](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202309111047792.png)
+
+# 20. Win32模态对话框
+
+### 20.1 创建对话框资源模板
+
+![image-20230911110914582](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202309111109727.png)
+
+![image-20230911111019933](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202309111110044.png)
+
+==资源编辑器和resource.h不能同时打开==
+
+控件的ID的定义都在resource.h中，不要随便修改，也不能删除resource.h
+
+![image-20230911111452829](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202309111114882.png)
+
+rc文件定义了对话框模板资源的属性，也不要修改和删除
+
+### 20.2 添加对话框窗口处理函数DialogProc
+
+![image-20230911112412932](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202309111124674.png)
+
+==DialogProc这个名字可以随便起,注意是函数签名要对==
+
+DialogProc 函数说明
+
+**函数简介：**
+DialogProc 是一个窗口过程的函数。用于与==DialogBox 函数(DialogBox 是创建模态对话框的函数)==一起使用的回调函数。它用于处理发送到一个模态或非模态的对话框的消息。DLGPROC 类型定义了一个指向此回调函数的指针。DialogProc 只是一个名字而已，编程过程中可随意命名。
+
+**函数声明：**
+
+```cpp
+INT_PTR CALLBACK DialogProc(
+        HWND hwndDlg,
+        UINT uMsg,
+        WPARAM wParam,
+        LPARAM lParam
+);
+```
+
+**参数说明：**
+hwndDlg：对话框的窗口句柄；
+uMsg：收到的消息号；
+wParam：消息的特定参数，与具体的消息有关系；
+lParam：消息的特定参数，与具体的消息有关系；
+
+**返回值：**
+通常的来说，如果对话框窗口函数处理了某个消息，应当返回TRUE，否则返回FALSE。
+除了对 WM_INITDIALOG 初始化消息的响应之外如果函数处理消息，则对话框应用程序应该返回TRUE。
+在响应 WM_INITDIALOG 消息时，如果函数调用 SetFocus 设置对话框中控制中的一个焦点，则对话框应用程序应该返回 FALSE，否则对话框应用程序应该返回 TRUE，这种情况下系统对能够有焦点的对话框中的第一个控制设置焦点
+
+
+
+
+
+### 20.3 模态对话框的创建： DialogBox
+
+**DialogBox 函数说明**
+
+**函数简介：** DialogBox 的作用是从一个对话框资源中创建一个模态对话框。==该函数直到指定的对话框窗口函数通过调用 EndDialog 函数中止后才能返回控制(该函数会一直阻塞)==。该函数内部通过调用 ==DialogBoxParam== 函数来实现。DialogBoxParam 内部是调用 ==CreateWindowEx== 来创建窗口。
+
+**函数声明：**
+
+```cpp
+INT_PTR DialogBox(
+  HINSTANCE hInstance,
+  LPCSTR    lpTemplateName,
+  HWND      hWndParent,
+  DLGPROC   lpDialogFunc
+);
+```
+
+**参数说明：**
+hInstance：标识一个模块的实例，该模块的可执行文件含有对话框模板，比如有的对话框资源模版是在EXE的资源中，有的是在DLL的资源中，根据实际情况而定；
+lpTemplateName：标识对话框资源模板，此参数可以是指向一个以 NULL 结尾的字符串的指针。该字符串指定对话框模板名，或是指定对话框模板的资源标识符中的一个整型值。如果此参数指定了一个资源标识符则它的高位字一定为零，且低位字一定含有标识符。要用 MAKEINTRESOURCE 宏指令创建此值。==模板ID==
+
+hWndParent：指定拥有对话框的父窗口,==这里传NULL就行==
+lpDialogFunc：指向对话框窗口函数的指针。更详细的关于对话框窗口函数的信息，请参见：https://www.cctry.com/thread-298982-1-1.html
+
+**返回值：**
+如果函数调用成功，则返回值为在对函数 EndDialog 的调用中的 nResult 参数，该函数用于中止对话框。如果函数调用失败，则返回值为 -1。若想获得更多的错误信息，请调用 GetLastError 函数。
+
