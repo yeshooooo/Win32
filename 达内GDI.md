@@ -252,3 +252,102 @@ void DrawBmp(HDC hdc)
 
 
 
+# 4. 文本绘制
+
+==能绘制字符串的函数并不止TextOut一个，还有很多函数可以绘制字符串==
+
+TextOut是功能最弱的一个(在固定坐标绘制，只能单行绘制)，DrawText功能要强的很多（在矩形范围内绘制，可以多行绘制）
+
+![image-20230912002515797](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202309120025998.png)
+
+==画任何东西，都应该在绘图消息里画==
+
+
+
+### 4.2 更改文字颜色和背景
+
+![image-20230912004726050](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202309120047206.png)
+
+```cpp
+	PAINTSTRUCT ps = { 0 };
+	HDC hdc = BeginPaint(hWnd, &ps);
+
+	//设置颜色和背景
+	SetTextColor(hdc, RGB(255, 0, 255));
+	SetBkColor(hdc, RGB(0, 255, 0));
+	// 通过设置背景模式设置背景色透明的，SetBkColor在TRANSPARENT模式下失效，只适用于OPAQUE不透明模式
+	SetBkMode(hdc, TRANSPARENT); //颜色跟背景一体
+```
+
+### 4.3 设置字体
+
+==字体是GDI绘图对象的一种，和画笔画刷一个道理==
+
+![image-20230912013255987](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202309120132062.png)
+
+TrueType格式的字体文件：系统中Fonts目录下的字体文件才可以创建，这些字体文件内部是TrueType文件，里面保存着每个字的点阵字型，就是每一个字的外观形状都在这个字体文件中保存着，打开后看到的仅仅是预览，不是真实内容
+
+==字体名不是字体的文件名，双击打开字体文件后，看他第一行==
+
+### 4.4 字体使用
+
+CreateFont中使用的字体，系统中必须要有，他会去系统内部寻找这个字体文件
+
+倾斜角度以0.1度为单位
+
+旋转角度在二维中看不出效果
+
+斜体： 1 、 0
+
+下划线： 1、0
+
+字符集： 定死用GB2312_CHARSET
+
+输出精度，剪切精度，输出质量，匹配字体这四个都是废弃的，写0
+
+![image-20230912013801668](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202309120138883.png)
+
+![image-20230912013821094](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202309120138217.png)
+
+```cpp
+void OnPaint(HWND hWnd) 
+{
+	PAINTSTRUCT ps = { 0 };
+	HDC hdc = BeginPaint(hWnd, &ps);
+
+	//设置颜色和背景
+	SetTextColor(hdc, RGB(255, 0, 255));
+	SetBkColor(hdc, RGB(0, 255, 0));
+	// 通过设置背景模式设置背景色透明的，SetBkColor在TRANSPARENT模式下失效，只适用于OPAQUE不透明模式
+	SetBkMode(hdc, TRANSPARENT); //颜色跟背景一体
+
+	// 创建字体
+	HFONT hFont = CreateFont(
+		30, //高度给30
+		0, // 宽度给0，会按高度匹配宽度
+		45, // 倾斜角度
+		0, // 选择角度，二维没有
+		900, // 字体粗细
+		1, // 是不是斜体
+		1, //要不要下划线
+		1, // 要不要删除线
+		GB2312_CHARSET, // 字符集
+		0, 0, 0, 0, //废弃参数
+		"黑体" //字体名字，双击字体文件第一行看
+
+	);
+	HGDIOBJ nOldFont =  SelectObject(hdc, hFont); //送给画家，并接受原来的字体
+    // 画东西
+    // ......
+
+
+
+	// 画完后把自己要回来
+	SelectObject(hdc, nOldFont);
+	DeleteObject(hFont); // 销毁字体内存
+	EndPaint(hWnd, &ps);
+
+
+}
+```
+
