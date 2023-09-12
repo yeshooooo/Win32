@@ -1026,7 +1026,7 @@ windows的互斥和linux的互斥锁解决的问题是一样的，但是实现�
 
 #### 13.1.2 创建线程的三种方式
 
-1. **CreateThread**
+1. ##### **CreateThread**
 
    ==标准WIN32函数==
 
@@ -1034,7 +1034,37 @@ windows的互斥和linux的互斥锁解决的问题是一样的，但是实现�
 
    [CreateThread 函数 (processthreadsapi.h) - Win32 apps | Microsoft Learn](https://learn.microsoft.com/zh-cn/windows/win32/api/processthreadsapi/nf-processthreadsapi-createthread)
 
-2. **AfxBeginThread**
+   ```cpp
+   // 线程函数
+   DWORD WINAPI ThreadProc(
+   	_In_ LPVOID lpParameter
+   )
+   {
+   	int tipMsg = (int)lpParameter;
+   	CString strMsg;
+   	strMsg.Format(TEXT("%d"), tipMsg);
+   	AfxMessageBox(strMsg);
+   	return 0;
+   }
+   
+   void CVCThread01Dlg::OnBnClickedBtn()
+   {
+   	// TODO: Add your control notification handler code here
+   
+   	// 方式1： 调用CreateThread
+   	DWORD dwThreadId = 0;
+   	HANDLE tThread = CreateThread(NULL, 0, ThreadProc, (LPVOID)456, 0, &dwThreadId);
+   
+   	// 引用计数-1，释放线程资源
+   	CloseHandle(tThread);
+   }
+   ```
+
+   
+
+2. ##### **AfxBeginThread**
+
+   ==AfxBeginThread中所需的回调函数跟CreateThread的函数签名不同，调用约定也不同==
 
    ==MFC中==
 
@@ -1074,7 +1104,24 @@ windows的互斥和linux的互斥锁解决的问题是一样的，但是实现�
 
    因为返回的CWinThread类型的指针中，有默认自动回收的属性
 
-3. **_beginthreadex**
+   ```cpp
+   
+   UINT __cdecl MyControllingFunction(LPVOID pParam)
+   {
+   	MessageBox(NULL, TEXT("AfxBeginThread创建的线程"), TEXT("Tip"), MB_OK);
+   	return 0;
+   }
+   void CVCThread01Dlg::OnBnClickedButton1()
+   {
+   	// TODO: Add your control notification handler code here
+   
+   	CWinThread* pThread = AfxBeginThread(MyControllingFunction, (LPVOID)456);
+   }
+   ```
+
+   
+
+3. ##### **_beginthreadex**
 
    ==C和C++中的==
 
@@ -1084,7 +1131,62 @@ windows的互斥和linux的互斥锁解决的问题是一样的，但是实现�
 
 ==方法二和方法三都是间接的调用方式一==
 
+### 13.2 一般情况下用什么
 
+1. WIN32 SDK 一般使用CreateThread
+
+2. 基于MFC的推荐使用AfxBeginThread，因为有默认值，提供基本两个参数就可以，而且不用回收资源
+
+AfxBeginThread不仅可以创建工作线程，也可以创建界面线程
+
+3. 第三种用的不多，是微软封装的在c和c++的，记得关闭返回值线程句柄
+
+### 13.3 线程的运行状态
+
+#### 13.3.1 微软开发工具集合
+
+[Sysinternals 实用工具 - Sysinternals | Microsoft Learn](https://learn.microsoft.com/zh-cn/sysinternals/downloads/)
+
+开发工具包里包含很多小工具，包括TCP View 查看哪些程序开了哪些端口
+
+Autoruns查看系统中的启动项
+
+#### 13.3.2 DebugView查看调试信息
+
+DebugView可以单独下载，也可以下载整个开发工具集
+
+==DebugView可以用于Win32程序的调试，也可用于驱动程序的调试，驱动程序的调试类似dll,不能下断点也不是很方便，==
+
+捕获Win32 勾上
+
+Capture Kernel 是指捕获驱动类程序的输出
+
+![image-20230912155153936](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202309121551018.png)
+
+配合OutputDebugString进行输出调试
+
+```cpp
+// 线程回调
+UINT __cdecl ThreadProc2(LPVOID pParam)
+{
+	int tipMsg = (int)pParam;
+	CString strTipMsg;
+	while (TRUE)
+	{
+		strTipMsg.Format(TEXT("%d"), tipMsg++);
+		OutputDebugString(strTipMsg);
+		Sleep(50);
+
+	}
+	return 0;
+}
+```
+
+#### 13.3.3 分线程如何调用主线程的变量和函数等
+
+==不能把线程函数作为MFC中主对话框类的普通成员函数==
+
+[成员函数做为线程函数](https://www.cctry.com/thread-19591-1-1.html)
 
 # 14. 线程和窗口的关系
 

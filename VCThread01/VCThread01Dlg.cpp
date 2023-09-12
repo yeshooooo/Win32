@@ -67,6 +67,7 @@ BEGIN_MESSAGE_MAP(CVCThread01Dlg, CDialogEx)
 	ON_WM_QUERYDRAGICON()
 	ON_BN_CLICKED(IDC_BTN, &CVCThread01Dlg::OnBnClickedBtn)
 	ON_BN_CLICKED(IDC_BUTTON1, &CVCThread01Dlg::OnBnClickedButton1)
+	ON_BN_CLICKED(IDC_BUTTON2, &CVCThread01Dlg::OnBnClickedButton2)
 END_MESSAGE_MAP()
 
 
@@ -181,6 +182,7 @@ void CVCThread01Dlg::OnBnClickedBtn()
 
 UINT __cdecl MyControllingFunction(LPVOID pParam)
 {
+	MessageBox(NULL, TEXT("AfxBeginThread创建的线程"), TEXT("Tip"), MB_OK);
 	return 0;
 }
 void CVCThread01Dlg::OnBnClickedButton1()
@@ -188,4 +190,34 @@ void CVCThread01Dlg::OnBnClickedButton1()
 	// TODO: Add your control notification handler code here
 
 	CWinThread* pThread = AfxBeginThread(MyControllingFunction, (LPVOID)456);
+}
+
+// 线程回调
+UINT __cdecl ThreadProc2(LPVOID pParam)
+{
+	CVCThread01Dlg* pThisDlg = (CVCThread01Dlg*)pParam; // 强转为主对话框类的指针
+	int tipMsg = pThisDlg->m_Num;
+	//int tipMsg = (int)pParam;
+	CString strTipMsg;
+	while (TRUE)
+	{
+		strTipMsg.Format(TEXT("num = %d"), tipMsg++);
+		OutputDebugString(strTipMsg);
+		Sleep(50);
+
+	}
+	return 0;
+}
+
+void CVCThread01Dlg::OnBnClickedButton2()
+{
+	// TODO: Add your control notification handler code here
+	// 
+	//Sleep(1000 * 20); // 睡眠10秒钟，睡眠是让当前程序的主线程睡眠(界面线程)
+	// 把Sleep放入分线程去做，就不会阻塞主线程
+
+	// 借用住对话框的指针来调用成员函数
+	m_Num = 123;
+	CWinThread* pThread = AfxBeginThread(ThreadProc2, this);
+	
 }
