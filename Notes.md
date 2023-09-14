@@ -1188,6 +1188,173 @@ UINT __cdecl ThreadProc2(LPVOID pParam)
 
 [成员函数做为线程函数](https://www.cctry.com/thread-19591-1-1.html)
 
+### 																																											13.4 MFC中用户界面线程的相关操作
+
+#### 1. 工作线程和界面线程的区别：消息循环
+
+==默认工作线程是没有消息循环的，界面线程有消息循环==
+
+不建议在工作线程中进行模态对话框的弹出，因为可能引发异常，界面线程有自己的消息循环，跟工作线程的上下文不一样
+
+![image-20230913105945762](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202309131059932.png)
+
+AfxBeginThread有两种重载方式，一种是创建工作线程，一种是创建界面线程
+
+![image-20230913105504092](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202309131055228.png)
+
+==不能在工作线程中创建与使用界面相关的代码==
+
+#### 2. 界面操作最好在界面线程中进行处理
+
+![image-20230913114445966](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202309131144047.png)
+
+#### 3. 界面线程的创建：
+
+##### 3.1 从CWinThread类派生自己的子类：CUIThreadApp(自定义的名字，叫啥都行)
+
+
+
+##### 3.2 重载InitInstance（必须重载）与ExitInstance(可选重装)函数
+
+重装方法
+
+![image-20230914114356840](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202309141143966.png)
+
+没有重载的，下拉选择add即可
+
+![image-20230914114510924](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202309141145991.png)
+
+##### 3.3 再InitInstance函数中进行界面的创建
+
+##### 3.4 调用AfxBeginThread函数开启界面线程: AfxBeginThread(RUNTIME_CLASS(CUIThreadApp));
+
+![image-20230914115107342](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202309141151433.png)
+
+```cpp
+	// 使用界面线程
+	AfxBeginThread(RUNTIME_CLASS(CUIThreadApp));
+```
+
+```cpp
+// 创建模态对话框
+BOOL CUIThreadApp::InitInstance()
+{
+	CTestDlg dlg;
+	dlg.DoModal();
+	// TODO:  perform and per-thread initialization here
+	return FALSE; // return TRUE后不会调用析构和ExitInstance，而是跳到.Run上执行
+}
+```
+
+模板创建的Dlg退出的是FALSE,MFC类向导创建的CWinThread子类默认返回TRUE，要改成FALSE，除非你想要对话框关闭后还要执行消息循环
+
+```cpp
+// 创建非模态对话框
+BOOL CUIThreadApp::InitInstance()
+{
+	//CTestDlg dlg;
+	//dlg.DoModal();
+	// TODO:  perform and per-thread initialization here
+
+	//return FALSE; // return TRUE后不会调用析构和ExitInstance，而是跳到.Run上执行
+
+	// 创建非模态对话框
+	CTestDlg* pTestDlg = new CTestDlg();
+	pTestDlg->Create(IDD_DIALOG1);
+	pTestDlg->ShowWindow(SW_SHOW);
+
+	return TRUE; // 这时候要返回TRUE，因为要运行线程自带的消息循环
+}
+```
+
+==返回TRUE的话，要手动在某个地方发送一个WM_QUIT消息，才会退出界面线程==
+
+也可以返回FALSE但是手动加一个RunModalLoop
+
+![image-20230914144804193](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202309141448276.png)
+
+如在dlg的cancel按钮中使用PostQuitMessage发送
+
+![image-20230914144633036](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202309141446306.png)
+
+### 13.5 线程的相关操作
+
+#### 13.5.1 线程的挂起与恢复：SuspendThread、ResumeThread
+
+![image-20230914162636535](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202309141626619.png)
+
+#### 13.5.2 线程的优先级：
+
+![image-20230914163119885](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202309141631056.png)
+
+```cpp
+
+UINT __cdecl ThreadProc1(LPVOID lpParameter)
+{
+	CStdioFile mFile;
+	mFile.Open(_T("D:\\123.txt"), CFile::modeCreate | CFile::modeReadWrite);
+	int tipMsg = (int)lpParameter;
+	CString strTipMsg;
+	while(TRUE) {
+		strTipMsg.Format(_T("%d\r"), tipMsg);
+		mFile.WriteString(strTipMsg);
+	}
+
+	mFile.Close();
+
+	return 0;
+}
+
+UINT __cdecl ThreadProc2(LPVOID lpParameter)
+{
+	CStdioFile mFile;
+	mFile.Open(_T("D:\\456.txt"), CFile::modeCreate | CFile::modeReadWrite);
+	int tipMsg = (int)lpParameter;
+	CString strTipMsg;
+	while(TRUE) {
+		strTipMsg.Format(_T("%d\r"), tipMsg);
+		mFile.WriteString(strTipMsg);
+	}
+
+	mFile.Close();
+
+	return 0;
+}
+
+void CThreadTestDlg::OnBnClickedBtn()
+{
+	CWinThread *pThread = AfxBeginThread(ThreadProc1, (LPVOID)111, THREAD_PRIORITY_LOWEST);
+	//SetThreadPriority(pThread->m_hThread, THREAD_PRIORITY_LOWEST);
+
+	pThread = AfxBeginThread(ThreadProc2, (LPVOID)789, THREAD_PRIORITY_HIGHEST);
+	//SetThreadPriority(pThread->m_hThread, THREAD_PRIORITY_HIGHEST);
+}
+```
+
+一般情况下使用默认的Normal优先级就行
+
+==线程与进程的优先级共同作用==
+
+![image-20230914164754681](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202309141647884.png)
+
+#### **13.5.3 线程的退出与终结：**
+
+1、最好的方式：让线程函数主动退出，或者 return；
+==可以保证线程函数里面对象的析构函数被调用，以及线程申请的相关空间被释放==；
+
+2、线程自己主动退出，可以调用 ExitThread（MFC中使用 AfxEndThread）；
+==线程函数里面对象的析构函数不会被调用，线程申请的相关空间被释放；==
+所以，在C语言里面可以使用该函数退出线程，但在==C++里面不建议==，因为C++里面有类！
+
+3、其他程序强行结束目标线程：可以调用 TerminateThread
+此函数非常危险，被结束的线程不会得到任何通知，线程申请的相关空间也不会被释放！
+所以，==离他远点！==
+
+4、线程退出码的获取：GetExitCodeThread
+前提：句柄有效，不被关闭！
+
+![image-20230914172828311](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202309141728484.png)
+
 # 14. 线程和窗口的关系
 
 ![image-20230823100657414](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202308231006591.png)

@@ -105,3 +105,11 @@ BOOL CVCThread01App::InitInstance()
 	return FALSE;
 }
 
+
+
+int CVCThread01App::ExitInstance()
+{
+	// TODO: Add your specialized code here and/or call the base class
+
+	return CWinApp::ExitInstance();
+}

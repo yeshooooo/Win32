@@ -3,7 +3,7 @@
 //
 
 #pragma once
-
+#include "CTestDlg.h"
 
 // CVCThread01Dlg dialog
 class CVCThread01Dlg : public CDialogEx
@@ -37,4 +37,7 @@ public:
 	afx_msg void OnBnClickedButton2();
 
 	int m_Num;
+	afx_msg void OnBnClickedButton5();
+	afx_msg void OnBnClickedSuspendBtn();
+	afx_msg void OnBnClickedResumeBtn();
 };
