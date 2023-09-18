@@ -71,6 +71,7 @@ BEGIN_MESSAGE_MAP(CVCThread01Dlg, CDialogEx)
 	ON_BN_CLICKED(IDC_BUTTON5, &CVCThread01Dlg::OnBnClickedButton5)
 	ON_BN_CLICKED(IDC_SUSPEND_BTN, &CVCThread01Dlg::OnBnClickedSuspendBtn)
 	ON_BN_CLICKED(IDC_RESUME_BTN, &CVCThread01Dlg::OnBnClickedResumeBtn)
+	ON_BN_CLICKED(IDC_BUTTON3, &CVCThread01Dlg::OnBnClickedButton3)
 END_MESSAGE_MAP()
 
 
@@ -292,4 +293,52 @@ void CVCThread01Dlg::OnBnClickedResumeBtn()
 {
 	// TODO: Add your control notification handler code here
 	ResumeThread(hThread);
+}
+
+// 全局变量方式：线程间通信
+int g_Num = 100;
+
+// 发送消息的方式
+#define MY_THREAD_MSG (WM_USER+100)
+UINT __cdecl ThreadWriteProc(LPVOID lpParameter)
+{
+	int nCount = 0;
+	DWORD dwThreadReadID = (DWORD)lpParameter;
+	while (TRUE)
+	{
+		PostThreadMessage(dwThreadReadID, MY_THREAD_MSG, nCount++, NULL);
+		Sleep(50);
+
+	}
+	return 0;
+}
+
+UINT __cdecl ThreadReadProc(LPVOID lpParameter)
+{
+	MSG msg = { 0 };
+	while (GetMessage(&msg, 0, 0, 0))
+	{
+		switch (msg.message)
+		{
+		case MY_THREAD_MSG:
+		{
+			int nCount = (int)msg.wParam;
+			CString strText;
+			strText.Format(_T("%d"), nCount);
+			OutputDebugString(strText);
+		}
+		break;
+		default:
+			break;
+		}
+	}
+	return 0;
+}
+
+void CVCThread01Dlg::OnBnClickedButton3()
+{
+	// TODO: Add your control notification handler code here
+
+	CWinThread* pThreadRead = AfxBeginThread(ThreadReadProc, NULL);
+	CWinThread* pThreadWrite = AfxBeginThread(ThreadWriteProc, (LPVOID)pThreadRead->m_nThreadID);
 }

@@ -1355,6 +1355,181 @@ void CThreadTestDlg::OnBnClickedBtn()
 
 ![image-20230914172828311](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202309141728484.png)
 
+### 13.6 线程间通信
+
+#### 13.6.1 全局变量方式或者多个线程都能看到的东西
+
+==全局变量的声明方式==
+
+**1.在某个cpp文件中定义一个全局变量**
+
+在其他的cpp文件中要使用他的话，在某个.h文件中，把他声明成全局变量
+
+如：
+
+.h -------> extern int g_Num; // 声明
+
+.cpp --------> int g_Num = 100; // 定义
+
+
+
+```cpp
+//.h
+extern int g_Num;
+
+//.cpp
+// 全局变量方式：线程间通信
+int g_Num = 100;
+UINT __cdecl ThreadWriteProc(LPVOID lpParameter)
+{
+	while (TRUE)
+	{
+		++g_Num;
+		Sleep(50);
+	}
+	return 100;
+
+}
+
+UINT __cdecl ThreadReadProc(LPVOID lpParameter)
+{
+	CString strTipMsg;
+	while (TRUE)
+	{
+		strTipMsg.Format(TEXT("%d"), g_Num);
+		OutputDebugString(strTipMsg);
+		Sleep(50);
+	}
+	return 100;
+}
+
+void CVCThread01Dlg::OnBnClickedButton3()
+{
+	// TODO: Add your control notification handler code here
+
+	CWinThread* pThread = AfxBeginThread(ThreadWriteProc, NULL);
+	AfxBeginThread(ThreadReadProc, NULL);
+}
+```
+
+
+
+**2.多个线程都能看到的东西**
+
+如：主对话框类，他只有一个，如可以在主对话框类中声明一个变量
+
+==然后创建线程传递参数的时候，把当前主对话框的指针传递过去==
+
+```cpp
+//.h
+	// 各个线程都能看到的
+	int m_Num;
+//.cpp
+UINT __cdecl ThreadWriteProc(LPVOID lpParameter)
+{
+	CVCThread01Dlg* pThis = (CVCThread01Dlg*)lpParameter;
+	while (TRUE)
+	{
+		++(pThis->m_Num);
+		Sleep(50);
+	}
+	return 100;
+
+}
+
+UINT __cdecl ThreadReadProc(LPVOID lpParameter)
+{
+	CVCThread01Dlg* pThis = (CVCThread01Dlg*)lpParameter;
+	CString strTipMsg;
+	while (TRUE)
+	{
+		strTipMsg.Format(TEXT("%d"), pThis->m_Num);
+		OutputDebugString(strTipMsg);
+		Sleep(50);
+	}
+	return 100;
+}
+
+void CVCThread01Dlg::OnBnClickedButton3()
+{
+	// TODO: Add your control notification handler code here
+	m_Num = 99;
+	CWinThread* pThread = AfxBeginThread(ThreadWriteProc, this);
+	AfxBeginThread(ThreadReadProc, this);
+}
+```
+
+
+
+#### 13.6.2 发送消息的方式：PostThreadMessage
+
+```cpp
+// 发送消息的方式
+#define MY_THREAD_MSG (WM_USER+100)
+UINT __cdecl ThreadWriteProc(LPVOID lpParameter)
+{
+	int nCount = 0;
+	DWORD dwThreadReadID = (DWORD)lpParameter;
+	while (TRUE)
+	{
+		PostThreadMessage(dwThreadReadID, MY_THREAD_MSG, nCount++, NULL);
+		Sleep(50);
+
+	}
+	return 0;
+}
+
+UINT __cdecl ThreadReadProc(LPVOID lpParameter)
+{
+	MSG msg = { 0 };
+	while (GetMessage(&msg, 0, 0, 0))
+	{
+		switch (msg.message)
+		{
+		case MY_THREAD_MSG:
+		{
+			int nCount = (int)msg.wParam;
+			CString strText;
+			strText.Format(_T("%d"), nCount);
+			OutputDebugString(strText);
+		}
+		break;
+		default:
+			break;
+		}
+	}
+	return 0;
+}
+
+void CVCThread01Dlg::OnBnClickedButton3()
+{
+	// TODO: Add your control notification handler code here
+
+	CWinThread* pThreadRead = AfxBeginThread(ThreadReadProc, NULL);
+	CWinThread* pThreadWrite = AfxBeginThread(ThreadWriteProc, (LPVOID)pThreadRead->m_nThreadID);
+}
+```
+
+#### 13.6.3 与界面线程的联系
+
+**1.创建界面线程的返回值CWinThread类型指针，就是新线程的指针**
+
+![image-20230918113240811](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202309181132936.png)
+
+**2.在新界面线程中调用AfxGetApp()；获取到的是程序主线程的指针**
+
+![image-20230918113459947](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202309181135027.png)
+
+==通过以上两种方法中的任意一种，将指针进行强转类型转换之后，可以轻松的实现线程间的通信==
+
+
+
+
+
+![image-20230918113615374](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202309181136437.png)
+
+![image-20230918113747940](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202309181137392.png)
+
 # 14. 线程和窗口的关系
 
 ![image-20230823100657414](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202308231006591.png)

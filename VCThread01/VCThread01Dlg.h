@@ -5,6 +5,8 @@
 #pragma once
 #include "CTestDlg.h"
 
+
+extern int g_Num;
 // CVCThread01Dlg dialog
 class CVCThread01Dlg : public CDialogEx
 {
@@ -36,8 +38,12 @@ public:
 	afx_msg void OnBnClickedButton1();
 	afx_msg void OnBnClickedButton2();
 
-	int m_Num;
+	
 	afx_msg void OnBnClickedButton5();
 	afx_msg void OnBnClickedSuspendBtn();
 	afx_msg void OnBnClickedResumeBtn();
+	afx_msg void OnBnClickedButton3();
+
+	// 各个线程都能看到的
+	int m_Num;
 };
