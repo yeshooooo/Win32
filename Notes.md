@@ -1530,6 +1530,104 @@ void CVCThread01Dlg::OnBnClickedButton3()
 
 ![image-20230918113747940](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202309181137392.png)
 
+### 13.7 线程同步
+
+#### 13.7.1 原子互锁家族
+
+注意参数是long*类型的指针
+
+==1. InterlockedIncrement: 加1操作==
+
+==2. InterlockedDecrement: 减1操作==
+
+==3. InterlockedExchangeAdd: 加上“指定”的值，可以加上一个负数==
+
+==4. InterlockedExchange、InterlockedExchangePointer： 能够以原子操作的方式用第二个参数的值来取代第一个参数的值==
+
+
+
+#### 13.7.2 Critical Sections(关键代码段、关键区域、临界区域)
+
+**使用方法：**
+
+==这几个函数需要一个共同的类型，这是一个结构体，一般情况下要声明为全局类型的变量==
+
+![image-20230918162547450](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202309181625533.png)
+
+1. 初始化： InitializeCriticalSection
+
+2. 删除：DeleteCriticalSection
+
+3. 进入：EnterCriticalSection(可能造成阻塞)
+
+4. 尝试进入：TryEnterCriticalSection(不会造成阻塞)
+
+   他有返回值，反或者为TRUE表面当前线程进去了，返回值是FALSE表面当前线程没进去，他不会傻等
+
+5. 离开：LeaveCriticalSection
+
+
+
+==优点和缺点==
+
+![image-20230918160835807](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202309181608904.png)
+
+```cpp
+CStringArray g_ArrString;
+CRITICAL_SECTION g_CS;
+
+UINT __cdecl ThreadProcCS(LPVOID lpParameter)
+{
+	int startIdx = (int)lpParameter;
+	for (int idx = startIdx; idx < startIdx + 100; ++idx)
+	{
+		CString str;
+		str.Format(_T("%d"), idx);
+
+		//进入临界区
+		EnterCriticalSection(&g_CS);
+		g_ArrString.Add(str);
+		// 离开临界区
+		LeaveCriticalSection(&g_CS);
+	}
+	return 0;
+}
+
+//
+void CVCThreadSyncDlg::OnBnClickedButton3()
+{
+	// TODO: Add your control notification handler code here
+	// 创建线程之前进行初始化临界区
+	InitializeCriticalSection(&g_CS);
+	for (int idx = 1; idx <=50; ++idx)
+	{
+		AfxBeginThread(ThreadProcCS, (LPVOID)(idx * 10));
+	}
+
+}
+
+
+// 临界区查看结果
+void CVCThreadSyncDlg::OnBnClickedButton4()
+{
+	// TODO: Add your control notification handler code here
+	CString strCount;
+	INT_PTR nCount = g_ArrString.GetCount();
+	strCount.Format(TEXT("%d"), nCount);
+	MessageBox(strCount);
+
+	for (INT_PTR idx = 0; idx < nCount; ++idx)
+	{
+		//OutputDebugString(g_ArrString.GetAt(nCount)); //win10 vs2019这里会异常
+		nCount = nCount; //自己随便加的
+	}
+	DeleteCriticalSection(&g_CS);
+}
+
+```
+
+
+
 # 14. 线程和窗口的关系
 
 ![image-20230823100657414](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202308231006591.png)
