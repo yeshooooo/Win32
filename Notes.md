@@ -1626,7 +1626,17 @@ void CVCThreadSyncDlg::OnBnClickedButton4()
 
 ```
 
+#### 13.7.3 复杂的线程同步后三种用得更多
 
+#### 13.7.4 Mutex(互斥器)
+
+使用方法：
+
+1. 创建一个互斥器： CreateMutex
+2. 打开一个已经存在的互斥器： OpenMutex
+3. 获得互斥器的拥有权: WaitForSingleObject、WaitForMultipleObjects等一类等待的函数......(可能造成阻塞)
+4. 释放互斥器的拥有权： ReleaseMutex
+5. 关闭互斥器：CloseHandle
 
 # 14. 线程和窗口的关系
 
