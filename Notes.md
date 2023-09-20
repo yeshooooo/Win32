@@ -1630,13 +1630,42 @@ void CVCThreadSyncDlg::OnBnClickedButton4()
 
 #### 13.7.4 Mutex(互斥器)
 
+
+
 使用方法：
 
 1. 创建一个互斥器： CreateMutex
-2. 打开一个已经存在的互斥器： OpenMutex
-3. 获得互斥器的拥有权: WaitForSingleObject、WaitForMultipleObjects等一类等待的函数......(可能造成阻塞)
-4. 释放互斥器的拥有权： ReleaseMutex
-5. 关闭互斥器：CloseHandle
+
+   互斥器支持多个进程间通信，a进程创建的互斥器，可以在进程b中打开，CreateMutex第三个参数就是打开时用的名字
+
+2.打开一个已经存在的互斥器： OpenMutex
+
+3.获得互斥器的拥有权: WaitForSingleObject、WaitForMultipleObjects等一类等待的函数......(可能造成阻塞)
+
+下面WAIT_ABANDONED消息，如果某个线程WaitForSingleObject还没用完就退出了，其他线程会收到WAIT_ABANDONED的消息
+
+4.释放互斥器的拥有权： ReleaseMutex
+
+5.关闭互斥器：CloseHandle
+
+1. ![image-20230919163846835](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202309191638012.png)
+2. ![image-20230919163857535](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202309191638620.png)
+3. ![image-20230919163920307](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202309191639396.png)
+4. ![image-20230919171338907](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202309191713074.png)
+
+#### 13.7.5 Semaphores(信号量)
+
+==临界区和互斥器是一个机制，都是判断某一个对象是否是激发状态,大家都在等一个东西，同一时间只有一个线程在操作某个东西==
+
+
+
+----
+
+==信号量则不同，同一时间可以有多个线程操作多个对象==
+
+
+
+![image-20230919172046966](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202309191720062.png)
 
 # 14. 线程和窗口的关系
 

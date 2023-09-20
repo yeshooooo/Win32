@@ -69,6 +69,7 @@ BEGIN_MESSAGE_MAP(CVCThreadSyncDlg, CDialog)
 	ON_BN_CLICKED(IDC_BUTTON2, &CVCThreadSyncDlg::OnBnClickedButton2)
 	ON_BN_CLICKED(IDC_BUTTON3, &CVCThreadSyncDlg::OnBnClickedButton3)
 	ON_BN_CLICKED(IDC_BUTTON4, &CVCThreadSyncDlg::OnBnClickedButton4)
+	ON_BN_CLICKED(IDC_BUTTON5, &CVCThreadSyncDlg::OnBnClickedButton5)
 END_MESSAGE_MAP()
 
 
@@ -237,4 +238,36 @@ void CVCThreadSyncDlg::OnBnClickedButton4()
 		nCount = nCount; //自己随便加的
 	}
 	DeleteCriticalSection(&g_CS);
+}
+
+// 互斥器
+HANDLE ghMutex = NULL;
+CStringArray g_ArrString1;
+UINT __cdecl ThreadProc(LPVOID lpParameter)
+{
+	int startIdx = (int)lpParameter;
+	for (int idx = startIdx; idx < startIdx + 100; ++idx)
+	{
+		CString str;
+		str.Format(TEXT("%d"), idx);
+
+		DWORD dwWaitResult = WaitForSingleObject(ghMutex, INFINITE);
+
+		switch (dwWaitResult)
+		{
+		case WAIT_ABANDONED:
+		case WAIT_OBJECT_0:
+			g_ArrString1.Add(str);
+			ReleaseMutex(ghMutex);
+			break;
+		default:
+			break;
+		}
+	}
+	return 0;
+}
+
+void CVCThreadSyncDlg::OnBnClickedButton5()
+{
+	// TODO: Add your control notification handler code here
 }
