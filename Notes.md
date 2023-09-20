@@ -1667,6 +1667,22 @@ void CVCThreadSyncDlg::OnBnClickedButton4()
 
 ![image-20230919172046966](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202309191720062.png)
 
+![image-20230920104728490](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202309201047680.png)
+
+![image-20230920104502631](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202309201045773.png)
+
+while是为了反复占有
+
+WaitForSingleObject不用等待是因为多个线程可以有多个对象
+
+![image-20230920104525311](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202309201045416.png)
+
+![image-20230920112659375](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202309201126531.png)
+
+#### 13.7.6 Event Objects（事件)
+
+![image-20230920113007506](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202309201130702.png)
+
 # 14. 线程和窗口的关系
 
 ![image-20230823100657414](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202308231006591.png)
