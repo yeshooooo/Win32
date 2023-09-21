@@ -624,6 +624,8 @@ send跟post都能发
 
 #### 10.4.2 消息队列的分类
 
+==SendMessage是同步的，PostMessage是异步的==
+
 ![image-20230825104658595](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202308251046826.png)
 
 ![image-20230825145725098](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202308251457193.png)
@@ -1682,6 +1684,18 @@ WaitForSingleObject不用等待是因为多个线程可以有多个对象
 #### 13.7.6 Event Objects（事件)
 
 ![image-20230920113007506](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202309201130702.png)
+
+### 13.8 多线程应用案例
+
+文件查找器
+
+这里的编程思想是每遇到一个目录就开启一个线程
+
+![image-20230921102950814](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202309211029984.png)
+
+![image-20230921112505612](https://yeshooonotes.oss-cn-shenzhen.aliyuncs.com/notespic/202309211125721.png)
+
+
 
 # 14. 线程和窗口的关系
 
